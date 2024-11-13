@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "977536324467",
+    "project_id": "doanquanlychitieu",
+    "storage_bucket": "doanquanlychitieu.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:977536324467:android:299db8ae0245559eb2eb06",
+        "android_client_info": {
+          "package_name": "com.example.quan_ly_chi_tieu"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA78wvzlWEbjmDUMNCm2VN26FkXo5usP8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
