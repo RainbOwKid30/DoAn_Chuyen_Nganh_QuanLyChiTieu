@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_main/home_page_budget.dart';
+import 'package:quan_ly_chi_tieu/features/screens/Pages/home_page_custom/home_page_edit.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_welcome/home_page_welcome.dart';
 
 class HomePageAccount extends StatelessWidget {
@@ -42,32 +44,61 @@ class HomePageAccount extends StatelessWidget {
           Column(
             children: [
               Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 15),
-                  child: SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: CircleAvatar(
-                      radius: 80,
-                      // Hiển thị ảnh đại diện từ Firebase
-                      backgroundImage: NetworkImage(
-                        user?.photoURL ??
-                            'https://static.vecteezy.com/system/resources/previews/019/896/008/original/male-user-avatar-icon-in-flat-design-style-person-signs-illustration-png.png',
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 15),
+                      child: SizedBox(
+                        width: 100,
+                        height: 100,
+                        child: CircleAvatar(
+                          foregroundColor: Colors.amber,
+                          radius: 80,
+                          // Hiển thị ảnh đại diện từ Firebase
+                          backgroundImage: NetworkImage(
+                            user?.photoURL ??
+                                'https://static.vecteezy.com/system/resources/previews/019/896/008/original/male-user-avatar-icon-in-flat-design-style-person-signs-illustration-png.png',
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const HomePageEdit(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          height: 30,
+                          width: 40,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              width: 3,
+                              color: Colors.white,
+                            ),
+                            color: Colors.blue,
+                          ),
+                          child: const Icon(
+                            Icons.edit,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 10),
-              // Tên người dùng (hiển thị nếu có)
-              Text(
-                user?.displayName ?? "Tên người dùng chưa cập nhật",
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              // Tên người dùng
+              _buildUserName(user),
               const SizedBox(height: 10),
               // Email người dùng
               Text(
@@ -125,7 +156,6 @@ class HomePageAccount extends StatelessWidget {
               onPressed: () async {
                 // Đăng xuất người dùng
                 await FirebaseAuth.instance.signOut();
-
                 // Kiểm tra người dùng đã đăng xuất thành công chưa
                 User? user = FirebaseAuth.instance.currentUser;
                 if (user == null) {
@@ -169,6 +199,47 @@ class HomePageAccount extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  // Hàm tiện ích để lấy tên người dùng từ Firestore hoặc FirebaseAuth
+  Widget _buildUserName(User? user) {
+    return StreamBuilder<DocumentSnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('Users')
+          .doc(user?.uid) // Lấy thông tin người dùng từ Firestore
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        }
+        if (snapshot.hasError) {
+          return const Text("Lỗi khi tải dữ liệu người dùng");
+        }
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return Text(
+            user?.displayName ?? "Tên người dùng chưa cập nhật",
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          );
+        }
+
+        // Lấy dữ liệu FullName từ Firestore (nếu có)
+        var userData = snapshot.data!.data() as Map<String, dynamic>;
+        return Text(
+          userData['FullName'] ??
+              user?.displayName ??
+              "Tên người dùng chưa cập nhật",
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        );
+      },
     );
   }
 

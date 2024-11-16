@@ -1,6 +1,8 @@
 // import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:quan_ly_chi_tieu/chart/Custom_Screen/chartContainer.dart';
+import 'package:quan_ly_chi_tieu/chart/lineChart.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_main/home_page_transaction.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/buildNavigationControls.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_main_scaffold.dart';
@@ -77,6 +79,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
   Widget build(BuildContext context) {
     // final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return CustomMainScaffold(
       child: Padding(
@@ -338,7 +341,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
               children: [
                 Container(
                   width: screenWidth - 40,
-                  height: 480, // Chiều cao cho box chứa PageView
+                  height: screenHeight - 450, // Chiều cao cho box chứa PageView
                   padding: const EdgeInsets.all(8.0),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -449,24 +452,20 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                           _subPageIndex = index;
                                         });
                                       },
-                                      children: [
+                                      children: const [
                                         // Trang 1.1: Chi tiết Tổng Chi
-                                        const Column(
+                                        Column(
                                           children: [
-                                            Text(
-                                              "Chi tiết Chi tiêu",
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: Text(
-                                                "Test Data",
-                                                style: TextStyle(
-                                                    fontSize: 20,
-                                                    fontWeight:
-                                                        FontWeight.bold),
+                                            Padding(
+                                              padding:
+                                                  EdgeInsets.only(top: 20.0),
+                                              child: ChartContainer(
+                                                chart: SizedBox(
+                                                  // Chiều rộng đầy đủ
+                                                  width: double.infinity,
+                                                  height: 200,
+                                                  child: HomeLineChart(),
+                                                ),
                                               ),
                                             ),
                                           ],
@@ -474,26 +473,11 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                         // Trang 1.2: Chi tiết Tổng Thu
                                         Column(
                                           children: [
-                                            const Text(
+                                            Text(
                                               "Chi tiết Thu nhập",
                                               style: TextStyle(
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: ListView.builder(
-                                                itemCount: incomeData.length,
-                                                itemBuilder: (context, index) {
-                                                  return ListTile(
-                                                    title: Text(
-                                                        incomeData[index]
-                                                            ['source']),
-                                                    subtitle: Text(
-                                                      '${incomeData[index]['amount']} đ - ${incomeData[index]['date']}',
-                                                    ),
-                                                  );
-                                                },
                                               ),
                                             ),
                                           ],
