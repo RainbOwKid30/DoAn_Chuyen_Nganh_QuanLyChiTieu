@@ -1,20 +1,32 @@
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:quan_ly_chi_tieu/features/providers/Transaction_Provider.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_welcome/home_page_welcome.dart';
 import 'package:quan_ly_chi_tieu/theme/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Khởi tạo Firebase
   await Firebase.initializeApp();
+
+  // Kích hoạt Firebase App Check
   await FirebaseAppCheck.instance.activate();
-  runApp(const MyApp());
+
+  // Chạy ứng dụng và cung cấp TransactionNotifier cho toàn bộ ứng dụng
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => TransactionProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

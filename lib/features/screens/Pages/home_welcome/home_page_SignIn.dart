@@ -6,7 +6,7 @@ import 'package:quan_ly_chi_tieu/features/screens/Pages/home_welcome/home_page_S
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/toggle_password.dart';
 import 'package:simple_icons/simple_icons.dart';
 import 'package:quan_ly_chi_tieu/theme/theme.dart';
-import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_scaffold.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/widgets/screen/custom_scaffold.dart';
 
 class HomePageSignin extends StatefulWidget {
   const HomePageSignin({super.key});
@@ -24,6 +24,7 @@ class _HomePageSigninState extends State<HomePageSignin> {
     try {
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
+
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const MyWidget()),
@@ -42,7 +43,7 @@ class _HomePageSigninState extends State<HomePageSignin> {
           const SnackBar(
             backgroundColor: Colors.orangeAccent,
             content: Text(
-              "Account Already exists",
+              "Incorrect password",
               style: TextStyle(fontSize: 20.0),
             ),
           ),

@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -56,10 +57,6 @@ class _EditUserPageState extends State<HomePageEdit> {
         isEditingName = false;
         isEditingEmail = false;
       });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Thông tin người dùng đã được cập nhật")),
-      );
     }
   }
 
@@ -132,7 +129,15 @@ class _EditUserPageState extends State<HomePageEdit> {
             // Đẩy nút "Lưu" xuống cuối màn hình
             const Spacer(),
             ElevatedButton(
-              onPressed: _saveChanges,
+              onPressed: () {
+                AwesomeDialog(
+                  context: context,
+                  dialogType: DialogType.success,
+                  animType: AnimType.rightSlide,
+                  title: 'Đã lưu thông tin người dùng!!!',
+                  btnOkOnPress: _saveChanges,
+                ).show();
+              },
               style: ElevatedButton.styleFrom(
                 // Độ rộng đầy đủ
                 minimumSize: const Size(double.infinity, 50),

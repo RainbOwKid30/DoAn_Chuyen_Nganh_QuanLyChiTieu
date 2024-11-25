@@ -1,7 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
+import 'package:firebase_auth/firebase_auth.dart'; // Import Firestore
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_buildOptionRow.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/widgets/user/custom_build_user_name.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_main/home_page_budget.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_page_custom/home_page_edit.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_welcome/home_page_welcome.dart';
@@ -98,7 +99,9 @@ class HomePageAccount extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               // Tên người dùng
-              _buildUserName(user),
+              CustomBuildUserName(
+                user: user,
+              ),
               const SizedBox(height: 10),
               // Email người dùng
               Text(
@@ -117,35 +120,35 @@ class HomePageAccount extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              _buildOptionRow(
-                context,
-                FontAwesomeIcons.wallet,
-                "Ví của tôi",
-                const HomePageBudget(),
+              CustomBuildoptionrow(
+                context1: context,
+                icon: const Icon(FontAwesomeIcons.wallet),
+                text: "Ví của tôi",
+                page: const HomePageBudget(),
               ),
-              _buildOptionRow(
-                context,
-                FontAwesomeIcons.boxesStacked,
-                "Nhóm",
-                const HomePageBudget(),
+              CustomBuildoptionrow(
+                context1: context,
+                icon: const Icon(FontAwesomeIcons.boxesStacked),
+                text: "Nhóm",
+                page: const HomePageBudget(),
               ),
-              _buildOptionRow(
-                context,
-                FontAwesomeIcons.fileInvoice,
-                "Hóa đơn",
-                const HomePageBudget(),
+              CustomBuildoptionrow(
+                context1: context,
+                icon: const Icon(FontAwesomeIcons.fileInvoice),
+                text: "Hóa đơn",
+                page: const HomePageBudget(),
               ),
-              _buildOptionRow(
-                context,
-                FontAwesomeIcons.toolbox,
-                "Công cụ",
-                const HomePageBudget(),
+              CustomBuildoptionrow(
+                context1: context,
+                icon: const Icon(FontAwesomeIcons.toolbox),
+                text: "Công cụ",
+                page: const HomePageBudget(),
               ),
-              _buildOptionRow(
-                context,
-                FontAwesomeIcons.cogs,
-                "Cài đặt",
-                const HomePageBudget(),
+              CustomBuildoptionrow(
+                context1: context,
+                icon: const Icon(FontAwesomeIcons.gears),
+                text: "Cài đặt",
+                page: const HomePageBudget(),
               ),
             ],
           ),
@@ -196,77 +199,8 @@ class HomePageAccount extends StatelessWidget {
                 ),
               ),
             ),
-          ),
+          )
         ],
-      ),
-    );
-  }
-
-  // Hàm tiện ích để lấy tên người dùng từ Firestore hoặc FirebaseAuth
-  Widget _buildUserName(User? user) {
-    return StreamBuilder<DocumentSnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('Users')
-          .doc(user?.uid) // Lấy thông tin người dùng từ Firestore
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        }
-        if (snapshot.hasError) {
-          return const Text("Lỗi khi tải dữ liệu người dùng");
-        }
-        if (!snapshot.hasData || !snapshot.data!.exists) {
-          return Text(
-            user?.displayName ?? "Tên người dùng chưa cập nhật",
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          );
-        }
-
-        // Lấy dữ liệu FullName từ Firestore (nếu có)
-        var userData = snapshot.data!.data() as Map<String, dynamic>;
-        return Text(
-          userData['FullName'] ??
-              user?.displayName ??
-              "Tên người dùng chưa cập nhật",
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        );
-      },
-    );
-  }
-
-  // Hàm tiện ích để tạo từng dòng chức năng
-  Widget _buildOptionRow(
-      BuildContext context, IconData icon, String text, Widget page) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => page),
-        );
-      },
-      child: Ink(
-        color: Colors.transparent,
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Row(
-            children: [
-              Icon(icon),
-              const SizedBox(width: 20),
-              Text(text),
-              const Spacer(),
-              const Icon(FontAwesomeIcons.angleRight),
-            ],
-          ),
-        ),
       ),
     );
   }

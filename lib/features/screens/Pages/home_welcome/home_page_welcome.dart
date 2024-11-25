@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_welcome/home_page_SignIn.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_welcome/home_page_SignUp.dart';
 import 'package:quan_ly_chi_tieu/theme/theme.dart';
-import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_scaffold.dart';
-import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_welcome_button.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/widgets/screen/custom_scaffold.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/widgets/screen/custom_welcome_button.dart';
 
 class HomePageWelcome extends StatelessWidget {
   const HomePageWelcome({super.key});

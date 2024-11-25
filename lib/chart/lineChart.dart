@@ -22,7 +22,7 @@ class _HomeLineChartState extends State<HomeLineChart> {
   @override
   Widget build(BuildContext context) {
     // Bạn có thể thay đổi amount1 trực tiếp tại đây, ví dụ:
-    updateAmount(70000); // Đây là một ví dụ cho việc cập nhật amount1
+    updateAmount(120000); // Đây là một ví dụ cho việc cập nhật amount1
 
     return LineChart(
       LineChartData(
@@ -143,7 +143,7 @@ class _HomeLineChartState extends State<HomeLineChart> {
   SideTitles get bottomTitles => SideTitles(
         showTitles: true,
         interval: 1, // Khoảng cách giữa các nhãn là 1 ngày
-        reservedSize: 20,
+        reservedSize: 50,
         getTitlesWidget: (value, meta) {
           DateTime currentDate = DateTime.now();
           int currentMonth = currentDate.month; // Lấy tháng hiện tại

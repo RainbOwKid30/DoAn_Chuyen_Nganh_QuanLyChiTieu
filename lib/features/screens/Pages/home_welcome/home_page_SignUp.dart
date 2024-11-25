@@ -5,7 +5,7 @@ import 'package:quan_ly_chi_tieu/features/models/user_model.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/App_main/my_app.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_welcome/home_page_SignIn.dart';
 import 'package:quan_ly_chi_tieu/theme/theme.dart';
-import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_scaffold.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/widgets/screen/custom_scaffold.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/toggle_password.dart';
 import 'package:simple_icons/simple_icons.dart';
 
