@@ -17,10 +17,14 @@ class HomePageTransaction extends StatefulWidget {
 class _HomePageTransactionState extends State<HomePageTransaction>
     with TickerProviderStateMixin {
   String selectedFilter = 'Tháng'; // Giá trị mặc định
+  DateTime selectedDay = DateTime.now(); // Ngày người dùng chọn
+  DateTime selectedMonth = DateTime.now(); // Tháng mặc định
+  DateTime selectedYear = DateTime.now(); // Năm mặc định
   late List<Tab> tabs = [];
   late List<Widget> tabsContent = [];
   DateTime now = DateTime.now();
   late TabController _tabController;
+  List<List<Widget>> tabContents = []; // Nội dung riêng cho từng tab
 
   @override
   void initState() {
@@ -30,8 +34,11 @@ class _HomePageTransactionState extends State<HomePageTransaction>
       // Tải dữ liệu nếu có userId
       Provider.of<TransactionProvider>(context, listen: false).loadData(userId);
     }
-    _tabController = TabController(length: 0, vsync: this);
+    // Tạo TabController dựa trên số lượng tabs
+    _tabController = TabController(length: tabs.length, vsync: this);
     _updateTabs(); // Cập nhật tabs khi khởi tạo
+    // Khởi tạo nội dung riêng cho từng tab
+    tabContents = List.generate(tabs.length, (index) => []);
     setState(() {}); // Cập nhật giao diện
   }
 
@@ -240,20 +247,173 @@ class _HomePageTransactionState extends State<HomePageTransaction>
           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          ...List.generate(
-            tabs.length,
-            (index) => Center(
-              child: Text(
-                "Nội dung cho tab $index",
-                style: const TextStyle(fontSize: 16),
-              ),
+          Expanded(
+            child: Consumer<TransactionProvider>(
+              builder: (context, transactionProvider, child) {
+                // Lấy dữ liệu thu nhập và chi tiêu từ provider
+                List<Map<String, dynamic>> incomeData =
+                    transactionProvider.incomeData;
+                List<Map<String, dynamic>> expenseData =
+                    transactionProvider.expenseData;
+
+                return TabBarView(
+                  controller: _tabController,
+                  children: List.generate(tabs.length, (index) {
+                    // Khởi tạo hai danh sách để lưu trữ dữ liệu đã lọc
+                    List<Map<String, dynamic>> filteredIncomeData = [];
+                    List<Map<String, dynamic>> filteredExpenseData = [];
+
+                    // Lấy ngày tương ứng với tab
+                    DateTime tabDate = getTabDateForIndex(index);
+                    // Lấy năm tương ứng với tab (có thể tính năm cho mỗi tab)
+                    DateTime tabYear = getTabYearForIndex(index);
+                    // Kiểm tra điều kiện lọc dựa trên lựa chọn (Tháng, Ngày, Năm)
+                    if (selectedFilter == 'Tháng') {
+                      var selectedMonth = DateTime(now.year, index, 1);
+
+                      filteredIncomeData = incomeData.where((item) {
+                        return item['date'].month == selectedMonth.month &&
+                            item['date'].year == selectedMonth.year;
+                      }).toList();
+
+                      filteredExpenseData = expenseData.where((item) {
+                        return item['date'].month == selectedMonth.month &&
+                            item['date'].year == selectedMonth.year;
+                      }).toList();
+                    } else if (selectedFilter == 'Ngày') {
+                      filteredIncomeData = incomeData.where((item) {
+                        return item['date'].day == tabDate.day &&
+                            item['date'].month == tabDate.month &&
+                            item['date'].year == tabDate.year;
+                      }).toList();
+
+                      filteredExpenseData = expenseData.where((item) {
+                        return item['date'].day == tabDate.day &&
+                            item['date'].month == tabDate.month &&
+                            item['date'].year == tabDate.year;
+                      }).toList();
+                    } else if (selectedFilter == 'Năm') {
+                      filteredIncomeData = incomeData.where((item) {
+                        return item['date'].year == tabYear.year;
+                      }).toList();
+
+                      filteredExpenseData = expenseData.where((item) {
+                        return item['date'].year == tabYear.year;
+                      }).toList();
+                    }
+
+                    return buildMonthTabContent(filteredIncomeData,
+                        filteredExpenseData, tabDate, tabYear, selectedMonth);
+                  }),
+                );
+              },
             ),
           ),
         ],
       ),
+    );
+  }
+
+  // Hàm lấy ngày cho mỗi tab
+  DateTime getTabDateForIndex(int index) {
+    // Trả về ngày tương ứng với tab dựa vào chỉ số index
+    if (selectedFilter == 'Ngày') {
+      // Giả sử bạn muốn lấy ngày đầu của tháng đó hoặc bất kỳ logic nào khác cho ngày
+      return DateTime(
+          now.year, now.month, index); // Tháng và ngày tương ứng với tab
+    }
+    // Nếu không phải lọc theo ngày, trả về giá trị mặc định
+    return DateTime(now.year, now.month, 1);
+  }
+  // Hàm lấy năm cho mỗi tab
+  DateTime getTabYearForIndex(int index) {
+    // Trả về năm tương ứng với tab dựa vào chỉ số index
+    if (selectedFilter == 'Năm') {
+      // Giả sử bạn muốn lấy năm hiện tại cộng với chỉ số tab (hoặc có thể thay đổi logic năm)
+      return DateTime(now.year, index - 5, 1); // Trả về năm cho tab
+    }
+    // Nếu không phải lọc theo năm, trả về giá trị mặc định (ví dụ năm hiện tại)
+    return DateTime(now.year, 1, 1);
+  }
+
+  Widget buildMonthTabContent(
+      List<Map<String, dynamic>> incomeData,
+      List<Map<String, dynamic>> expenseData,
+      DateTime month,
+      DateTime year,
+      DateTime day) {
+    if (incomeData.isEmpty && expenseData.isEmpty) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            "assets/images/empty-box.png",
+            scale: 1.5,
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          const Text(
+            "Chạm + để thêm",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 114, 113, 113),
+              fontSize: 25,
+            ),
+          ),
+          const SizedBox(
+            height: 100,
+          ),
+        ],
+      );
+    }
+
+    return ListView.builder(
+      itemCount: incomeData.length + expenseData.length,
+      itemBuilder: (context, index) {
+        var data = index < incomeData.length
+            ? incomeData[index]
+            : expenseData[index - incomeData.length];
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  blurRadius: 4,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+            child: ListTile(
+              contentPadding: const EdgeInsets.all(16),
+              title: Text(
+                data['group'],
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              subtitle: Text(
+                'Ngày: ${DateFormat('dd/MM/yyyy').format(data['date'])}',
+                style: TextStyle(color: Colors.grey[600]),
+              ),
+              trailing: Text(
+                '${data['amount']} ₫',
+                style: const TextStyle(
+                  color: Colors.black, // Áp dụng màu đã xác định cho số tiền
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

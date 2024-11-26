@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "name": "quan_ly_chi_tieu (Flutter V2025)",
+            "program": "lib/main.dart",
+            "deviceId": "4a6740a2",
+            "request": "launch",
+            "type": "dart"
+        }
+    ]
+}

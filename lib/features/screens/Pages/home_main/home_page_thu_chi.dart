@@ -162,7 +162,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
               children: [
                 Container(
                   width: screenWidth - 40,
-                  height: 130,
+                  height: 120,
                   padding: const EdgeInsets.all(8.0),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -316,7 +316,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
               children: [
                 Container(
                   width: screenWidth - 40,
-                  height: screenHeight - 450, // Chiều cao cho box chứa PageView
+                  height: screenHeight - 400, // Chiều cao cho box chứa PageView
                   padding: const EdgeInsets.all(8.0),
                   decoration: BoxDecoration(
                     color: Colors.white,
