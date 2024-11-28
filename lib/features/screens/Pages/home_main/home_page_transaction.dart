@@ -1,10 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_transaction_scaffol.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_money.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/widgets/screen/custom_transaction_scaffol.dart';
 import 'package:intl/intl.dart';
-import 'package:quan_ly_chi_tieu/features/providers/Transaction_Provider.dart'; // Thêm thư viện intl để xử lý ngày tháng
+import 'package:quan_ly_chi_tieu/features/providers/Transaction_Provider.dart';
+import 'package:quan_ly_chi_tieu/features/screens/Pages/home_page_custom/home_page_edit_giaodich.dart'; // Thêm thư viện intl để xử lý ngày tháng
 
 class HomePageTransaction extends StatefulWidget {
   const HomePageTransaction({super.key});
@@ -193,20 +196,12 @@ class _HomePageTransactionState extends State<HomePageTransaction>
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: "${transactionProvider.totalBalance} ",
+                                text: CustomMoney().formatCurrency(
+                                    transactionProvider.totalBalance),
                                 style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 25,
                                   fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const TextSpan(
-                                text: "đ",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.w500,
-                                  decoration: TextDecoration.underline,
                                 ),
                               ),
                             ],
@@ -327,6 +322,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
     // Nếu không phải lọc theo ngày, trả về giá trị mặc định
     return DateTime(now.year, now.month, 1);
   }
+
   // Hàm lấy năm cho mỗi tab
   DateTime getTabYearForIndex(int index) {
     // Trả về năm tương ứng với tab dựa vào chỉ số index
@@ -344,76 +340,264 @@ class _HomePageTransactionState extends State<HomePageTransaction>
       DateTime month,
       DateTime year,
       DateTime day) {
-    if (incomeData.isEmpty && expenseData.isEmpty) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            "assets/images/empty-box.png",
-            scale: 1.5,
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          const Text(
-            "Chạm + để thêm",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 114, 113, 113),
-              fontSize: 25,
-            ),
-          ),
-          const SizedBox(
-            height: 100,
-          ),
-        ],
+    Future<void> deleteItem(String groupType, String docId) async {
+      try {
+        // Xóa giao dịch từ Firestore dựa trên docId
+        await FirebaseFirestore.instance
+            .collection('transactions')
+            .doc('groups_thu_chi')
+            .collection(groupType) // 'KhoanThu' hoặc 'KhoanChi'
+            .doc(docId) // Xóa tài liệu dựa trên docId
+            .delete();
+        print("Đã xóa giao dịch thành công");
+      } catch (e) {
+        print("Lỗi khi xóa tài liệu: $e");
+      }
+    }
+
+    double totalIncome =
+        incomeData.fold(0, (sum, item) => sum + item['amount']);
+    double totalExpense =
+        expenseData.fold(0, (sum, item) => sum + item['amount']);
+    double netBalance = totalIncome - totalExpense;
+
+    void showOptionsDialog(BuildContext context, Map<String, dynamic> data,
+        String groupType, Function onDelete) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Tùy chọn"),
+            content: const Text("Bạn muốn làm gì với giao dịch này?"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomePageEditGiaodich(
+                        data: data, // Truyền dữ liệu item qua đây
+                      ),
+                    ),
+                  );
+                },
+                child: const Text("Sửa"),
+              ),
+              TextButton(
+                onPressed: () async {
+                  // Xóa khỏi Firestore
+                  await deleteItem(groupType, data['docId']);
+                  onDelete(); // Xóa khỏi danh sách hiển thị
+                  Navigator.pop(context);
+                },
+                child: const Text("Xóa", style: TextStyle(color: Colors.red)),
+              ),
+            ],
+          );
+        },
       );
     }
 
-    return ListView.builder(
-      itemCount: incomeData.length + expenseData.length,
-      itemBuilder: (context, index) {
-        var data = index < incomeData.length
-            ? incomeData[index]
-            : expenseData[index - incomeData.length];
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
-                  blurRadius: 4,
-                  spreadRadius: 1,
-                ),
-              ],
-            ),
-            child: ListTile(
-              contentPadding: const EdgeInsets.all(16),
-              title: Text(
-                data['group'],
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              subtitle: Text(
-                'Ngày: ${DateFormat('dd/MM/yyyy').format(data['date'])}',
-                style: TextStyle(color: Colors.grey[600]),
-              ),
-              trailing: Text(
-                '${data['amount']} ₫',
-                style: const TextStyle(
-                  color: Colors.black, // Áp dụng màu đã xác định cho số tiền
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
-            ),
+    return Column(
+      children: [
+        // Box chứa tổng thu, chi, và số dư
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: Colors.grey.shade300),
           ),
-        );
-      },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Column(
+                children: [
+                  const Text("Tổng Thu",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    CustomMoney().formatCurrencyTotalQuyDoi(totalIncome),
+                    style: const TextStyle(
+                        color: Colors.blue,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              Column(
+                children: [
+                  const Text("Tổng Chi",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    CustomMoney().formatCurrencyTotalQuyDoi(totalExpense),
+                    style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              Column(
+                children: [
+                  const Text("Số Dư",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    CustomMoney().formatCurrencyTotalQuyDoi(netBalance),
+                    style: const TextStyle(
+                        color: Colors.green,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        // ListView hiển thị các giao dịch
+        Expanded(
+          child: incomeData.isEmpty && expenseData.isEmpty
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset("assets/images/empty-box.png", scale: 1.5),
+                    const SizedBox(height: 20),
+                    const Text(
+                      "Chạm + để thêm",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(255, 114, 113, 113),
+                        fontSize: 25,
+                      ),
+                    ),
+                    const SizedBox(height: 100),
+                  ],
+                )
+              : ListView.builder(
+                  itemCount: incomeData.length + expenseData.length,
+                  itemBuilder: (context, index) {
+                    var data = index < incomeData.length
+                        ? incomeData[index]
+                        : expenseData[index - incomeData.length];
+                    // Phân loại thu/chi
+                    bool isIncome;
+                    if (index < incomeData.length) {
+                      data = incomeData[index];
+                      isIncome = true;
+                    } else {
+                      data = expenseData[index - incomeData.length];
+                      isIncome = false;
+                    }
+                    String groupType = isIncome ? 'KhoanThu' : 'KhoanChi';
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 16.0),
+                      child: InkWell(
+                        onLongPress: () {
+                          showOptionsDialog(context, data, groupType, () {
+                            // Cập nhật giao diện sau khi xóa
+                            setState(() {
+                              if (isIncome) {
+                                incomeData.removeAt(index);
+                              } else {
+                                expenseData.removeAt(index - incomeData.length);
+                              }
+                            });
+                          });
+                        },
+                        child: Material(
+                          // Giúp hiển thị hiệu ứng bấm
+                          color: Colors.transparent,
+                          child: InkWell(
+                            // Có thể thêm hành động cho tap
+                            onTap: () {},
+                            onLongPress: () {
+                              showOptionsDialog(context, data, groupType, () {
+                                // Xử lý hành động khi long press
+                                setState(() {
+                                  if (isIncome) {
+                                    incomeData.removeAt(index);
+                                  } else {
+                                    expenseData
+                                        .removeAt(index - incomeData.length);
+                                  }
+                                });
+                              });
+                            },
+                            // Hiệu ứng splash khi nhấn
+                            splashColor: Colors.blue.withOpacity(1),
+                            // Màu khi giữ
+                            highlightColor:
+                                const Color.fromARGB(255, 223, 223, 223)
+                                    .withOpacity(1),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.2),
+                                    blurRadius: 4,
+                                    spreadRadius: 1,
+                                  ),
+                                ],
+                              ),
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.all(16),
+                                title: Row(
+                                  children: [
+                                    Image.asset(
+                                      'assets/images/${data['icon']}.png',
+                                      scale: 15,
+                                    ),
+                                    const SizedBox(
+                                      width: 20,
+                                    ),
+                                    Column(
+                                      // Căn trái các phần tử
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          data['group'],
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Ngày: ${DateFormat('dd/MM/yyyy').format(data['date'])}',
+                                          style: TextStyle(
+                                            color: Colors.grey[600],
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                trailing: Text(
+                                  CustomMoney().formatCurrencyTotalNoSymbol(
+                                      data['amount']),
+                                  style: TextStyle(
+                                    color: isIncome ? Colors.blue : Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        )
+      ],
     );
   }
 }

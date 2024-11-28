@@ -2,10 +2,12 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_buildOptionRow.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_money.dart';
 import 'package:quan_ly_chi_tieu/features/models/user_model.dart';
 import 'package:quan_ly_chi_tieu/features/providers/Transaction_Provider.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_main/home_page_budget.dart';
@@ -64,18 +66,26 @@ class _HomePagePlusState extends State<HomePagePlus> {
             transactionType == 'Khoản Chi' ? 'KhoanChi' : 'KhoanThu';
 
         // Lưu giao dịch vào Firestore
-        await FirebaseFirestore.instance
+        var docRef = await FirebaseFirestore.instance
             .collection('transactions')
             .doc('groups_thu_chi') // Tạo tài liệu nhóm
             .collection(
                 transactionSubCollection) // Chọn nhóm con theo loại giao dịch
             .add({
           'userId': firebaseUser!.uid, // ID người dùng
-          'amount': int.tryParse(_amountController.text) ?? 0, // Số tiền
+          'amount':
+              double.tryParse(_amountController.text.replaceAll(',', '')) ??
+                  0.0,
           'group': selectedGroupName, // Tên nhóm
           'transactionType': transactionType, // Loại giao dịch (thu/chi)
           'date': selectedDate ?? DateTime.now(), // Ngày giao dịch
           'note': selectedGhiChu, // Ghi chú
+          'icon': selectedGroupIcon,
+        });
+
+        // Lưu docId vào tài liệu giao dịch
+        await docRef.update({
+          'docId': docRef.id, // Lưu docId vào tài liệu
         });
 
         // Sau khi lưu xong, tải lại dữ liệu
@@ -216,6 +226,17 @@ class _HomePagePlusState extends State<HomePagePlus> {
                         ),
                       ),
                     ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      // Sử dụng TextInputFormatter để thêm dấu phẩy khi người dùng nhập
+                      TextInputFormatter.withFunction((oldValue, newValue) {
+                        String newText = newValue.text.replaceAll(',', '');
+                        String formattedText = CustomMoney()
+                            .formatCurrencyTotalNoSymbol(
+                                double.tryParse(newText) ?? 0.0);
+                        return newValue.copyWith(text: formattedText);
+                      }),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 20),
@@ -260,6 +281,7 @@ class _HomePagePlusState extends State<HomePagePlus> {
               ),
             ],
           ),
+
           Padding(
             padding: const EdgeInsets.only(left: 20.0, top: 15.0),
             child: Row(

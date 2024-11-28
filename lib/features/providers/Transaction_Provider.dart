@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 class TransactionProvider with ChangeNotifier {
   List<Map<String, dynamic>> expenseData = [];
@@ -134,6 +134,9 @@ class TransactionProvider with ChangeNotifier {
             'group': data['group'] ?? '',
             'date': (data['date'] as Timestamp?)?.toDate() ?? DateTime.now(),
             'note': data['note'] ?? '',
+            'docId': data['docId'] ?? '',
+            'transactionType': data['transactionType'] ?? '',
+            'icon': data['icon'] ?? '',
           };
         }).toList();
         notifyListeners();
@@ -154,6 +157,9 @@ class TransactionProvider with ChangeNotifier {
             'group': data['group'] ?? '',
             'date': (data['date'] as Timestamp?)?.toDate() ?? DateTime.now(),
             'note': data['note'] ?? '',
+            'docId': data['docId'] ?? '',
+            'transactionType': data['transactionType'] ?? '',
+            'icon': data['icon'] ?? '',
           };
         }).toList();
         notifyListeners();
@@ -164,13 +170,13 @@ class TransactionProvider with ChangeNotifier {
   }
 
   // Tính tổng chi
-  int get totalExpenses =>
-      expenseData.fold(0, (sum, item) => sum + (item['amount'] as int));
+  double get totalExpenses =>
+      expenseData.fold(0, (sum, item) => sum + (item['amount']));
 
   // Tính tổng thu
-  int get totalIncome =>
-      incomeData.fold(0, (sum, item) => sum + (item['amount'] as int));
+  double get totalIncome =>
+      incomeData.fold(0, (sum, item) => sum + (item['amount']));
 
   // Tính tổng số dư
-  int get totalBalance => totalIncome - totalExpenses;
+  double get totalBalance => totalIncome - totalExpenses;
 }
