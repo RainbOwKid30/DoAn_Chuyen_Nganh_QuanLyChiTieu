@@ -1,12 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:quan_ly_chi_tieu/features/models/user_model.dart';
-import 'package:quan_ly_chi_tieu/features/screens/Pages/App_main/my_app.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/signup_controller.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_welcome/home_page_SignIn.dart';
 import 'package:quan_ly_chi_tieu/theme/theme.dart';
-import 'package:quan_ly_chi_tieu/features/controllers/widgets/screen/custom_scaffold.dart';
-import 'package:quan_ly_chi_tieu/features/controllers/widgets/toggle_password.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_scaffold.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/toggle_password.dart';
 import 'package:simple_icons/simple_icons.dart';
 
 class HomePageSignup extends StatefulWidget {
@@ -21,89 +18,7 @@ class _HomePageSignupState extends State<HomePageSignup> {
   TextEditingController namecontroller = TextEditingController();
   TextEditingController emailcontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
-
-  registration() async {
-    setState(() {
-      isLoading = true; // Bắt đầu quá trình đăng ký, hiển thị loading
-    });
-    if (name != "" && email != "" && password != "") {
-      try {
-        // Tạo tài khoản Firebase
-        UserCredential userCredential = await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(email: email, password: password);
-
-        // Cập nhật tên người dùng
-        await userCredential.user?.updateProfile(displayName: name);
-
-        // Tạo đối tượng UserModel
-        UserModel user = UserModel(
-          id: userCredential.user?.uid,
-          fullName: name,
-          email: email,
-          password: password,
-        );
-
-        // Lưu dữ liệu người dùng vào Firestore
-        await saveUserData(user);
-
-        // Hiển thị thông báo đăng ký thành công
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            backgroundColor: Colors.green,
-            content: Text(
-              "Registered Successfully",
-              style: TextStyle(fontSize: 20.0),
-            )));
-
-        // Điều hướng đến trang chính (hoặc trang khác)
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const MyWidget()),
-          (route) => false, // Xóa tất cả các màn hình trước đó
-        );
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'weak-password') {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              backgroundColor: Colors.orangeAccent,
-              content: Text(
-                "Password Provided is too weak",
-                style: TextStyle(fontSize: 20.0),
-              )));
-        } else if (e.code == "email-already-in-use") {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              backgroundColor: Colors.orangeAccent,
-              content: Text(
-                "Account Already exists",
-                style: TextStyle(fontSize: 20.0),
-              )));
-        }
-      } finally {
-        setState(() {
-          isLoading = false; // Kết thúc quá trình đăng ký, ẩn loading
-        });
-      }
-    }
-  }
-
   // Hàm để lưu thông tin người dùng vào Firestore
-  Future<void> saveUserData(UserModel user) async {
-    try {
-      // Lấy UID của người dùng từ Firebase Auth
-      String uid = FirebaseAuth.instance.currentUser!.uid;
-
-      // Ghi dữ liệu vào Firestore
-      await FirebaseFirestore.instance
-          .collection('Users') // Chọn collection 'users'
-          .doc(uid) // Sử dụng UID từ Firebase Auth làm document ID
-          .set(user.toJson()); // Lưu dữ liệu người dùng vào Firestore
-
-      print("User data saved successfully");
-    } catch (e) {
-      print("Error saving user data: $e");
-      // Hiển thị thông báo lỗi nếu có
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Error: $e")));
-    }
-  }
 
   bool isLoading = false;
   bool _isSecurePassword = true;
@@ -313,7 +228,17 @@ class _HomePageSignupState extends State<HomePageSignup> {
                                     name = namecontroller.text;
                                   });
                                 }
-                                registration();
+                                SignupController.registration(
+                                  name: name,
+                                  email: email,
+                                  password: password,
+                                  context: context,
+                                  setLoading: (value) {
+                                    setState(() {
+                                      isLoading = value;
+                                    });
+                                  },
+                                );
                               } else if (!rememberPassword) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(

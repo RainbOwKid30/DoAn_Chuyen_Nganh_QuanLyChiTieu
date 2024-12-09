@@ -1,16 +1,16 @@
 // import 'package:fl_chart/fl_chart.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/expense_controller.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/chart/chart_column.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/chart/chart_column2.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/chart/lineChart.dart';
-import 'package:quan_ly_chi_tieu/features/controllers/widgets/buildNavigationControls.dart';
-import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_money.dart';
-import 'package:quan_ly_chi_tieu/features/controllers/widgets/screen/custom_main_scaffold.dart';
-import 'package:quan_ly_chi_tieu/features/providers/Transaction_Provider.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/buildNavigationControls.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_money.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_main_scaffold.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/providers/Transaction_Provider.dart';
 
 class HomePageThuChi extends StatefulWidget {
   const HomePageThuChi({super.key, this.onTap});
@@ -24,7 +24,9 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
   List<Map<String, dynamic>> expenseData = [];
   List<Map<String, dynamic>> incomeData = [];
   double totalExpenseThisWeek = 0;
-  double totalExpenseThistMonth = 0;
+  double totalExpenseThisMonth = 0;
+  // Tạo controller
+  final ExpenseController _expenseController = ExpenseController();
 
   @override
   void initState() {
@@ -48,50 +50,13 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
   final PageController _mainPageController = PageController();
   final PageController _subPageController = PageController();
 
+  // Hàm lấy dữ liệu từ controller
   Future<void> fetchData() async {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-    // Get the current date
-    DateTime now = DateTime.now();
-
-    // Calculate the start and end date for this week
-    DateTime startOfThisWeek = now.subtract(Duration(days: now.weekday - 1));
-    DateTime endOfThisWeek = startOfThisWeek.add(const Duration(days: 6));
-
-    // Calculate the start and end date for this month
-    DateTime startOfThisMonth = DateTime(now.year, now.month, 1);
-    DateTime endOfThisMonth = DateTime(now.year, now.month + 1, 0);
-
-    // Fetch KhoanChi (Expense) data
-    QuerySnapshot expenseSnapshot = await firestore
-        .collection('transactions')
-        .doc('groups_thu_chi')
-        .collection('KhoanChi')
-        .get();
-
-    // Process expense data
-    for (var doc in expenseSnapshot.docs) {
-      double amount = doc['amount'].toDouble();
-      Timestamp date = doc['date'];
-      DateTime dateTime = date.toDate();
-
-      // Check if the expense is within this week
-      if (dateTime.isAfter(startOfThisWeek.subtract(const Duration(days: 1))) &&
-          dateTime.isBefore(endOfThisWeek.add(const Duration(days: 1)))) {
-        totalExpenseThisWeek += amount.abs(); // Add to this week's total
-      }
-
-      // Check if the expense is within this month
-      if (dateTime
-              .isAfter(startOfThisMonth.subtract(const Duration(days: 1))) &&
-          dateTime.isBefore(endOfThisMonth.add(const Duration(days: 1)))) {
-        totalExpenseThistMonth += amount.abs(); // Add to this month's total
-      }
-    }
-
-    // Print out totals for debugging
-    print("Total expense this week: $totalExpenseThisWeek");
-    print("Total expense this month: $totalExpenseThistMonth");
+    var expenseData = await _expenseController.fetchExpenseData();
+    setState(() {
+      totalExpenseThisWeek = expenseData['thisWeek'] ?? 0;
+      totalExpenseThisMonth = expenseData['thisMonth'] ?? 0;
+    });
   }
 
   void _previousPage() {
@@ -473,12 +438,10 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                       children: const [
                                         // Trang 1.1: Chi tiết Tổng Chi
                                         Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
-                                            Column(
-                                              children: [
-                                                HomeLineChart(),
-                                              ],
-                                            ),
+                                            HomeLineChart(),
                                           ],
                                         ),
                                         // Trang 1.2: Chi tiết Tổng Thu
@@ -652,7 +615,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                               children: [
                                                 Text(
                                                   CustomMoney().formatCurrency(
-                                                      totalExpenseThistMonth),
+                                                      totalExpenseThisMonth),
                                                   style: const TextStyle(
                                                     fontSize: 25,
                                                     fontWeight: FontWeight.w600,

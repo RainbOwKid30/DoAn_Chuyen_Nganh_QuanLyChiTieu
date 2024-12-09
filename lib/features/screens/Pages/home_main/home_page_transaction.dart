@@ -3,10 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_money.dart';
-import 'package:quan_ly_chi_tieu/features/controllers/widgets/screen/custom_transaction_scaffol.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_money.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_transaction_scaffol.dart';
 import 'package:intl/intl.dart';
-import 'package:quan_ly_chi_tieu/features/providers/Transaction_Provider.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/providers/Transaction_Provider.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_page_custom/home_page_edit_giaodich.dart'; // Thêm thư viện intl để xử lý ngày tháng
 
 class HomePageTransaction extends StatefulWidget {

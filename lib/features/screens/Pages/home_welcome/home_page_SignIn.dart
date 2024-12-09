@@ -1,12 +1,11 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:quan_ly_chi_tieu/features/screens/Pages/App_main/my_app.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/login_controller.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_welcome/home_page_SignUp.dart';
-import 'package:quan_ly_chi_tieu/features/controllers/widgets/toggle_password.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/toggle_password.dart';
 import 'package:simple_icons/simple_icons.dart';
 import 'package:quan_ly_chi_tieu/theme/theme.dart';
-import 'package:quan_ly_chi_tieu/features/controllers/widgets/screen/custom_scaffold.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_scaffold.dart';
 
 class HomePageSignin extends StatefulWidget {
   const HomePageSignin({super.key});
@@ -19,38 +18,6 @@ class _HomePageSigninState extends State<HomePageSignin> {
   String email = "", password = "";
   TextEditingController emailcontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
-
-  userlogin() async {
-    try {
-      await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
-
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const MyWidget()),
-        (route) => false, // Xóa tất cả các màn hình trước đó
-      );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            backgroundColor: Colors.orangeAccent,
-            content: Text(
-              "User not found",
-              style: TextStyle(fontSize: 20.0),
-            )));
-      } else if (e.code == 'wrong-password') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: Colors.orangeAccent,
-            content: Text(
-              "Incorrect password",
-              style: TextStyle(fontSize: 20.0),
-            ),
-          ),
-        );
-      }
-    }
-  }
 
   bool isSecurePassword = true;
   final formSignInKey = GlobalKey<FormState>();
@@ -225,7 +192,11 @@ class _HomePageSigninState extends State<HomePageSignin> {
                                     password = passwordcontroller.text;
                                   });
                                 }
-                                userlogin();
+                                LoginController.userLogin(
+                                  context: context,
+                                  email: emailcontroller.text,
+                                  password: passwordcontroller.text,
+                                );
                               } else if (!rememberPassword) {
                                 AwesomeDialog(
                                   context: context,

@@ -39,4 +39,17 @@ final List<String> iconPaths = [
   'wallet',
   'walletmoney',
   'water',
+  'admin_2875381',
+  'book_1063865',
+  'bowl_1005758',
+  'brain_954278',
+  'burner_4445057',
+  'global-warming_2573826',
+  'groceries_3274180',
+  'hard-disk_2333346',
+  'house_1152964',
+  'manta-ray_3763748',
+  'printer_10301566',
+  'schedule_12448591',
+  'shopping-bag_877658'
 ];

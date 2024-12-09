@@ -1,9 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:quan_ly_chi_tieu/features/models/json/data_chi.dart';
-import 'package:quan_ly_chi_tieu/features/models/json/data_thu.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/category_controller.dart';
+import 'package:quan_ly_chi_tieu/features/models/data_category_expense_income.dart';
 import 'home_page_new_item.dart'; // Import trang HomePageNewItem
 
 class HomePageChonNhom extends StatefulWidget {
@@ -16,6 +14,8 @@ class HomePageChonNhom extends StatefulWidget {
 class _HomePageChonNhomState extends State<HomePageChonNhom>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+
+  final CategoryController _categoryController = CategoryController();
   Color _indicatorColor = Colors.red;
   // Tạo danh sách động từ dữ liệu mặc định
   final List<Map<String, dynamic>> _khoanChi = List.from(dataChi);
@@ -25,7 +25,7 @@ class _HomePageChonNhomState extends State<HomePageChonNhom>
   void initState() {
     super.initState();
     // Tải dữ liệu khi màn hình khởi tạo
-    _fetchFirestoreData();
+    _loadFirestoreData();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
       setState(() {
@@ -40,41 +40,17 @@ class _HomePageChonNhomState extends State<HomePageChonNhom>
     super.dispose();
   }
 
-  Future<void> _fetchFirestoreData() async {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId != null) {
-      try {
-        // Lấy dữ liệu Khoản Chi
-        final chiSnapshot = await FirebaseFirestore.instance
-            .collection('categories')
-            .doc("group_category")
-            .collection('KhoanChi')
-            .get();
+  Future<void> _loadFirestoreData() async {
+    final data = await _categoryController.fetchFirestoreData(dataChi, dataThu);
+    setState(() {
+      _khoanChi
+        ..clear()
+        ..addAll(data['KhoanChi']!);
 
-        // Lấy dữ liệu Khoản Thu
-        final thuSnapshot = await FirebaseFirestore.instance
-            .collection('categories')
-            .doc("group_category")
-            .collection('KhoanThu')
-            .get();
-
-        setState(() {
-          // Cập nhật dữ liệu Khoản Chi
-          _khoanChi
-            ..clear()
-            ..addAll(dataChi) // Thêm dữ liệu mặc định
-            ..addAll(chiSnapshot.docs.map((doc) => doc.data()));
-
-          // Cập nhật dữ liệu Khoản Thu
-          _khoanThu
-            ..clear()
-            ..addAll(dataThu) // Thêm dữ liệu mặc định
-            ..addAll(thuSnapshot.docs.map((doc) => doc.data()));
-        });
-      } catch (e) {
-        print('Lỗi khi tải dữ liệu Firestore: $e');
-      }
-    }
+      _khoanThu
+        ..clear()
+        ..addAll(data['KhoanThu']!);
+    });
   }
 
   @override
@@ -124,7 +100,7 @@ class _HomePageChonNhomState extends State<HomePageChonNhom>
           );
 
           if (result == true) {
-            _fetchFirestoreData(); // Reload dữ liệu sau khi thêm mới
+            _loadFirestoreData(); // Reload dữ liệu sau khi thêm mới
           }
         },
         backgroundColor: _indicatorColor,
