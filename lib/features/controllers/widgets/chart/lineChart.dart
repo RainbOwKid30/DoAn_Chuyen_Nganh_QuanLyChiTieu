@@ -361,10 +361,10 @@ class _LineChartSample2State extends State<HomeLineChart> {
       lineTouchData: LineTouchData(
         touchTooltipData: LineTouchTooltipData(
           tooltipRoundedRadius: 8,
-          fitInsideHorizontally:
-              true, // Đảm bảo tooltip nằm trong ranh giới theo chiều ngang
-          fitInsideVertically:
-              true, // Đảm bảo tooltip nằm trong ranh giới theo chiều dọc
+          // Đảm bảo tooltip nằm trong ranh giới theo chiều ngang
+          fitInsideHorizontally: true,
+          // Đảm bảo tooltip nằm trong ranh giới theo chiều dọc
+          fitInsideVertically: true,
           getTooltipItems: (touchedSpots) {
             return touchedSpots.map((touchedSpot) {
               // Chuyển đổi ngày tháng từ số ngày thành định dạng ngày tháng

@@ -2,6 +2,7 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/providers/BudgetProvider.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/providers/Transaction_Provider.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_welcome/home_page_welcome.dart';
 import 'package:quan_ly_chi_tieu/theme/theme.dart';
@@ -17,8 +18,11 @@ void main() async {
 
   // Chạy ứng dụng và cung cấp TransactionNotifier cho toàn bộ ứng dụng
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => TransactionProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => TransactionProvider()),
+        ChangeNotifierProvider(create: (context) => BudgetProvider()), // Thêm BudgetProvider vào đây
+      ],
       child: const MyApp(),
     ),
   );

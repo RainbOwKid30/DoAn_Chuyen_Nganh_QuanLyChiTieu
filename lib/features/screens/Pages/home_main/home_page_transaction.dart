@@ -368,7 +368,16 @@ class _HomePageTransactionState extends State<HomePageTransaction>
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text("Tùy chọn"),
-            content: const Text("Bạn muốn làm gì với giao dịch này?"),
+            content: Container(
+              width: 50.0,
+              height: 50.0,
+              decoration: const BoxDecoration(
+                shape: BoxShape.rectangle,
+                color: Color(0x00ffffff),
+                borderRadius: BorderRadius.all(Radius.circular(0.0)),
+              ),
+              child: const Text("Bạn muốn xóa hay sửa?"),
+            ),
             actions: [
               TextButton(
                 onPressed: () {
@@ -492,7 +501,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
 
                     return Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 16.0),
+                          vertical: 5.0, horizontal: 0),
                       child: InkWell(
                         onLongPress: () {
                           showOptionsDialog(context, data, groupType, () {
@@ -534,7 +543,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
                             child: Container(
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(0),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.grey.withOpacity(0.2),

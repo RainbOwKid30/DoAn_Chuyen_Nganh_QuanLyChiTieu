@@ -6,22 +6,21 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:quan_ly_chi_tieu/features/controllers/providers/Transaction_Provider.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_buildOptionRow.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_money.dart';
 import 'package:quan_ly_chi_tieu/features/models/user_model.dart';
-import 'package:quan_ly_chi_tieu/features/controllers/providers/Transaction_Provider.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_main/home_page_budget.dart';
-import 'package:quan_ly_chi_tieu/features/screens/Pages/home_page_custom/home_page_chon_nhom.dart';
-import 'package:quan_ly_chi_tieu/features/screens/Pages/home_page_custom/home_page_ghichu.dart';
+import 'package:quan_ly_chi_tieu/features/screens/Pages/home_page_custom/home_page_select_budget.dart';
 
-class HomePagePlus extends StatefulWidget {
-  const HomePagePlus({super.key});
+class HomePageAddBudget extends StatefulWidget {
+  const HomePageAddBudget({super.key});
 
   @override
-  State<HomePagePlus> createState() => _HomePagePlusState();
+  State<HomePageAddBudget> createState() => _HomePageAddBudgetState();
 }
 
-class _HomePagePlusState extends State<HomePagePlus> {
+class _HomePageAddBudgetState extends State<HomePageAddBudget> {
   final User? firebaseUser = FirebaseAuth.instance.currentUser;
   UserModel? userModel;
   bool isEditingName = false;
@@ -36,51 +35,53 @@ class _HomePagePlusState extends State<HomePagePlus> {
   String selectedGroupName = 'Chọn nhóm'; // Giá trị mặc định
   String selectedGroupIcon = 'question_mark'; // Icon mặc định
 
-  // Dữ liệu ghi chú thêm
-  String selectedGhiChu = "Ghi chú thêm";
-
   // Date selection
   DateTime? selectedDate;
 
-  // Function to open date picker
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime currentDate = DateTime.now();
-    final DateTime pickedDate = await showDatePicker(
-          context: context,
-          initialDate: selectedDate ?? currentDate,
-          firstDate: DateTime(currentDate.year),
-          lastDate: DateTime(2100),
-        ) ??
-        currentDate;
+  // Hàm để tính toán ngày đầu và ngày cuối của tháng hiện tại
+  void setCurrentMonthDates() {
+    final DateTime now = DateTime.now();
+    // First day of current month
+    final DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
+    // Last day of current month
+    final DateTime lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
 
     setState(() {
-      selectedDate = pickedDate;
+      selectedDate = firstDayOfMonth; // Set the start date
     });
+
+    // Update the start and end dates for the budget
+    startDate = firstDayOfMonth;
+    endDate = lastDayOfMonth;
   }
 
-  void _saveTransaction() async {
+  DateTime startDate = DateTime.now(); // Ngày bắt đầu
+  DateTime endDate = DateTime.now(); // Ngày kết thúc
+
+  @override
+  void initState() {
+    super.initState();
+    setCurrentMonthDates(); // Đặt ngày đầu và ngày cuối tháng khi mở màn hình
+  }
+
+  String budgetId = FirebaseFirestore.instance.collection('budgets').doc().id;
+  void saveBudgets() async {
     if (firebaseUser != null) {
-      String categoryId = '';
       try {
-        // Truy vấn cả hai collection để tìm selectedGroupName
-        QuerySnapshot khoanChiSnapshot = await FirebaseFirestore.instance
+        // Lấy tất cả tài liệu từ collection 'categories' dưới 'group_category'
+        QuerySnapshot categorySnapshot = await FirebaseFirestore.instance
             .collection('categories')
             .doc('group_category')
             .collection('KhoanChi')
-            .where('name', isEqualTo: selectedGroupName)
-            .get();
-
-        QuerySnapshot khoanThuSnapshot = await FirebaseFirestore.instance
-            .collection('categories')
-            .doc('group_category')
-            .collection('KhoanThu')
-            .where('name', isEqualTo: selectedGroupName)
             .get();
 
         // Kiểm tra nếu có tài liệu trong collection
-        if (khoanChiSnapshot.docs.isNotEmpty) {
+        if (categorySnapshot.docs.isNotEmpty) {
+          // Giả sử bạn có danh sách các danh mục, và người dùng chọn nhóm cần lưu
+          String categoryId = ''; // Khởi tạo categoryId
+
           // Duyệt qua tất cả các tài liệu trong categorySnapshot
-          for (var doc in khoanChiSnapshot.docs) {
+          for (var doc in categorySnapshot.docs) {
             // Kiểm tra nếu tên nhóm trong danh mục trùng với nhóm người dùng đã chọn
             if (doc['name'] == selectedGroupName) {
               // 'name' là trường trong Firestore
@@ -88,54 +89,56 @@ class _HomePagePlusState extends State<HomePagePlus> {
               break;
             }
           }
-        } else if (khoanThuSnapshot.docs.isNotEmpty) {
-          // Duyệt qua tất cả các tài liệu trong categorySnapshot
-          for (var doc in khoanThuSnapshot.docs) {
-            // Kiểm tra nếu tên nhóm trong danh mục trùng với nhóm người dùng đã chọn
-            if (doc['name'] == selectedGroupName) {
-              // 'name' là trường trong Firestore
-              categoryId = doc.id; // Lấy docId của nhóm tương ứng
-              break;
+
+          // Nếu tìm thấy categoryId hợp lệ
+          if (categoryId.isNotEmpty) {
+            // Lưu dữ liệu vào Firestore với categoryId lấy từ tài liệu trong KhoanChi
+            await FirebaseFirestore.instance
+                .collection('budgets')
+                .doc(budgetId)
+                .set({
+              'userId': firebaseUser!.uid,
+              'categoryId':
+                  categoryId, // Lưu categoryId lấy từ tài liệu trong KhoanChi
+              'amount':
+                  double.tryParse(_amountController.text.replaceAll(',', '')) ??
+                      0.0,
+              'startDate': startDate,
+              'endDate': endDate,
+            });
+
+            // Sau khi lưu xong, tải lại dữ liệu
+            String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
+            if (userId.isNotEmpty) {
+              // Gọi lại loadData để tải dữ liệu mới từ Firestore
+              Provider.of<TransactionProvider>(context, listen: false)
+                  .loadData(userId); // Gọi lại loadData để tải dữ liệu mới
             }
+
+            // Quay lại trang trước sau khi lưu thành công
+            Navigator.pop(context);
+          } else {
+            // Nếu không tìm thấy danh mục hợp lệ
+            AwesomeDialog(
+              context: context,
+              dialogType: DialogType.error,
+              animType: AnimType.rightSlide,
+              title: 'Lỗi',
+              desc: 'Không tìm thấy nhóm danh mục trùng khớp.',
+              btnOkOnPress: () {},
+            ).show();
           }
+        } else {
+          // Nếu không tìm thấy bất kỳ danh mục nào trong 'KhoanChi'
+          AwesomeDialog(
+            context: context,
+            dialogType: DialogType.error,
+            animType: AnimType.rightSlide,
+            title: 'Lỗi',
+            desc: 'Không có danh mục nào trong hệ thống.',
+            btnOkOnPress: () {},
+          ).show();
         }
-        // Chọn nhóm giao dịch, tùy thuộc vào loại giao dịch
-        String transactionSubCollection =
-            transactionType == 'Khoản Chi' ? 'KhoanChi' : 'KhoanThu';
-
-        // Lưu giao dịch vào Firestore
-        var docRef = await FirebaseFirestore.instance
-            .collection('transactions')
-            .doc('groups_thu_chi') // Tạo tài liệu nhóm
-            .collection(
-                transactionSubCollection) // Chọn nhóm con theo loại giao dịch
-            .add({
-          'userId': firebaseUser!.uid, // ID người dùng
-          'amount':
-              double.tryParse(_amountController.text.replaceAll(',', '')) ??
-                  0.0,
-          'group': selectedGroupName, // Tên nhóm
-          'transactionType': transactionType, // Loại giao dịch (thu/chi)
-          'categoryId': categoryId,
-          'date': selectedDate ?? DateTime.now(), // Ngày giao dịch
-          'note': selectedGhiChu, // Ghi chú
-          'icon': selectedGroupIcon,
-        });
-
-        // Lưu docId vào tài liệu giao dịch
-        await docRef.update({
-          'docId': docRef.id, // Lưu docId vào tài liệu
-        });
-        // Sau khi lưu xong, tải lại dữ liệu
-        String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
-        if (userId.isNotEmpty) {
-          // Gọi lại loadData để tải dữ liệu mới từ Firestore
-          Provider.of<TransactionProvider>(context, listen: false)
-              .loadData(userId); // Gọi lại loadData để tải dữ liệu mới
-        }
-
-        // Quay lại trang trước sau khi lưu thành công
-        Navigator.pop(context);
       } catch (e) {
         // Xử lý lỗi nếu có
         AwesomeDialog(
@@ -143,63 +146,23 @@ class _HomePagePlusState extends State<HomePagePlus> {
           dialogType: DialogType.error,
           animType: AnimType.rightSlide,
           title: 'Lỗi',
-          desc: 'Có lỗi khi lưu giao dịch: $e',
+          desc: 'Có lỗi khi lưu ngân sách: $e',
           btnOkOnPress: () {},
         ).show();
       }
     }
   }
 
-  void _openGhichuDialog() async {
-    final TextEditingController noteController = TextEditingController();
-
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Ghi chú thêm"),
-          content: TextField(
-            controller: noteController,
-            maxLength: 100, // Giới hạn 100 ký tự
-            decoration: const InputDecoration(
-              hintText: "Nhập ghi chú",
-              border: OutlineInputBorder(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Đóng dialog mà không lưu
-              },
-              child: const Text("Hủy"),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  selectedGhiChu = noteController.text.isEmpty
-                      ? "Thêm ghi chú"
-                      : noteController.text;
-                });
-                Navigator.pop(context); // Đóng dialog
-              },
-              child: const Text("Lưu"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    String formattedDate = selectedDate != null
-        ? DateFormat('dd/MM/yyyy').format(selectedDate!)
-        : 'Ngày / Tháng / Năm';
+    // Format the start and end date
+    String formattedDate =
+        'This month (${DateFormat('d/MM').format(startDate)} - ${DateFormat('d/MM').format(endDate)})';
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          "Thêm Giao Dịch",
+          "Thêm Ngân Sách",
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -209,7 +172,7 @@ class _HomePagePlusState extends State<HomePagePlus> {
           color: const Color(0xff000000),
           icon: const Icon(FontAwesomeIcons.xmark),
           onPressed: () {
-            Navigator.pop(context); // Quay lại trang trước
+            Navigator.pop(context, true); // Quay lại trang trước
           },
         ),
       ),
@@ -292,19 +255,8 @@ class _HomePagePlusState extends State<HomePagePlus> {
                   height: 30,
                 ),
                 text: selectedGroupName,
-                page: const HomePageChonNhom(),
+                page: const HomePageSelectBudget(),
                 onTap: _openChonNhom,
-              ),
-              CustomBuildoptionrow(
-                context1: context,
-                icon: Image.asset(
-                  'assets/images/homework.png',
-                  width: 30,
-                  height: 30,
-                ),
-                text: selectedGhiChu,
-                page: const HomePageGhichu(),
-                onTap: _openGhichuDialog,
               ),
               CustomBuildoptionrow(
                 context1: context,
@@ -315,7 +267,7 @@ class _HomePagePlusState extends State<HomePagePlus> {
                 ),
                 text: formattedDate,
                 page: const HomePageBudget(),
-                onTap: () => _selectDate(context),
+                onTap: () => setCurrentMonthDates(),
               ),
             ],
           ),
@@ -350,7 +302,7 @@ class _HomePagePlusState extends State<HomePagePlus> {
                   dialogType: DialogType.success,
                   animType: AnimType.rightSlide,
                   title: 'Đã thêm giao dịch mới',
-                  btnOkOnPress: _saveTransaction,
+                  btnOkOnPress: saveBudgets,
                 ).show();
               },
               style: ElevatedButton.styleFrom(
@@ -375,7 +327,7 @@ class _HomePagePlusState extends State<HomePagePlus> {
   void _openChonNhom() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const HomePageChonNhom()),
+      MaterialPageRoute(builder: (context) => const HomePageSelectBudget()),
     );
 
     if (result != null) {

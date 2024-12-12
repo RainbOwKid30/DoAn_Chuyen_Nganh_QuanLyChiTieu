@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_buildOptionRow.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_build_user_name.dart';
-import 'package:quan_ly_chi_tieu/features/screens/Pages/home_main/home_page_budget.dart';
+import 'package:quan_ly_chi_tieu/features/screens/Pages/home_main/home_page_item.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_page_custom/home_page_edit.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_welcome/home_page_welcome.dart';
 
@@ -124,31 +124,31 @@ class HomePageAccount extends StatelessWidget {
                 context1: context,
                 icon: const Icon(FontAwesomeIcons.wallet),
                 text: "Ví của tôi",
-                page: const HomePageBudget(),
+                page: const HomePageItem(),
               ),
               CustomBuildoptionrow(
                 context1: context,
                 icon: const Icon(FontAwesomeIcons.boxesStacked),
                 text: "Nhóm",
-                page: const HomePageBudget(),
+                page: const HomePageItem(),
               ),
               CustomBuildoptionrow(
                 context1: context,
                 icon: const Icon(FontAwesomeIcons.fileInvoice),
                 text: "Hóa đơn",
-                page: const HomePageBudget(),
+                page: const HomePageItem(),
               ),
               CustomBuildoptionrow(
                 context1: context,
                 icon: const Icon(FontAwesomeIcons.toolbox),
                 text: "Công cụ",
-                page: const HomePageBudget(),
+                page: const HomePageItem(),
               ),
               CustomBuildoptionrow(
                 context1: context,
                 icon: const Icon(FontAwesomeIcons.gears),
                 text: "Cài đặt",
-                page: const HomePageBudget(),
+                page: const HomePageItem(),
               ),
             ],
           ),
