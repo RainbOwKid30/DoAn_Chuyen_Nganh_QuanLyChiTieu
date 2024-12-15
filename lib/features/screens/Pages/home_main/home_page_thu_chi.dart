@@ -153,7 +153,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
             const Row(
               children: [
                 Text(
-                  "Tổng số dư",
+                  "Total balance",
                   style: TextStyle(
                     color: Color(0xFF626262),
                     fontSize: 16,
@@ -186,7 +186,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              "Ví của tôi",
+                              "My wallet",
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
@@ -205,10 +205,10 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                 child: Container(
                                   alignment: Alignment.centerRight,
                                   child: const Text(
-                                    "Xem tất cả",
+                                    "See All",
                                     style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
                                       color: Colors.green,
                                     ),
                                   ),
@@ -234,9 +234,9 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                   width: 40,
                                   height: 40,
                                 ),
-                                const SizedBox(width: 20),
+                                const SizedBox(width: 10),
                                 const Text(
-                                  "Tiền mặt",
+                                  "Cash",
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
@@ -280,7 +280,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  "Báo cáo tháng này",
+                  "This month's report",
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
@@ -298,7 +298,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                     child: Container(
                       alignment: Alignment.centerRight,
                       child: const Text(
-                        "Báo cáo chi tiết",
+                        "See report",
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -355,7 +355,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                         child: Column(
                                           children: [
                                             const Text(
-                                              "Tổng Chi",
+                                              "Expense",
                                               style: TextStyle(
                                                 fontSize: 15,
                                                 color: Color(0xff000000),
@@ -395,7 +395,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                         child: Column(
                                           children: [
                                             const Text(
-                                              "Tổng Thu",
+                                              "Income",
                                               style: TextStyle(
                                                 fontSize: 15,
                                                 color: Color(0xff000000),
@@ -448,7 +448,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                         Column(
                                           children: [
                                             Text(
-                                              "Chi tiết Thu nhập",
+                                              "Detail Income",
                                               style: TextStyle(
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.w600,
@@ -506,7 +506,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                                 ),
                                                 child: const Center(
                                                   child: Text(
-                                                    "Tuần",
+                                                    "Week",
                                                     style: TextStyle(
                                                       fontSize: 16,
                                                       color: Color.fromARGB(
@@ -545,7 +545,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                                 ),
                                                 child: const Center(
                                                   child: Text(
-                                                    "Tháng",
+                                                    "Month",
                                                     style: TextStyle(
                                                       fontSize: 16,
                                                       color: Color.fromARGB(
@@ -591,7 +591,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                             const Row(
                                               children: [
                                                 Text(
-                                                  "Tổng chi tuần này",
+                                                  "Total This Week",
                                                   style: TextStyle(
                                                     fontSize: 15,
                                                     fontWeight: FontWeight.w600,
@@ -626,7 +626,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                             const Row(
                                               children: [
                                                 Text(
-                                                  "Tổng chi tháng này",
+                                                  "Total This Month",
                                                   style: TextStyle(
                                                     fontSize: 15,
                                                     fontWeight: FontWeight.w600,

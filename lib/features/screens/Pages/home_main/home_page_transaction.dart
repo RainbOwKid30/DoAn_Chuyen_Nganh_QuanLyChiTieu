@@ -19,7 +19,7 @@ class HomePageTransaction extends StatefulWidget {
 
 class _HomePageTransactionState extends State<HomePageTransaction>
     with TickerProviderStateMixin {
-  String selectedFilter = 'Tháng'; // Giá trị mặc định
+  String selectedFilter = 'Month'; // Giá trị mặc định
   DateTime selectedDay = DateTime.now(); // Ngày người dùng chọn
   DateTime selectedMonth = DateTime.now(); // Tháng mặc định
   DateTime selectedYear = DateTime.now(); // Năm mặc định
@@ -64,7 +64,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
     tabs = [const Tab(child: Icon(FontAwesomeIcons.angleLeft))];
 
     // Cập nhật tab theo lựa chọn ngày, tháng hoặc năm
-    if (selectedFilter == 'Ngày') {
+    if (selectedFilter == 'Day') {
       tabs.addAll(List.generate(
         DateTime(now.year, now.month + 1, 0).day, // Số ngày trong tháng
         (index) {
@@ -72,21 +72,21 @@ class _HomePageTransactionState extends State<HomePageTransaction>
           return Tab(child: Text(dateFormat.format(date)));
         },
       ));
-    } else if (selectedFilter == 'Tháng') {
+    } else if (selectedFilter == 'Month') {
       tabs.addAll(List.generate(
         12, // Tổng số tháng trong năm
         (index) {
           String monthYear =
               DateFormat('MM/yyyy').format(DateTime(now.year, index + 1));
-          return Tab(child: Text('Tháng $monthYear'));
+          return Tab(child: Text('Month $monthYear'));
         },
       ));
-    } else if (selectedFilter == 'Năm') {
+    } else if (selectedFilter == 'Year') {
       tabs.addAll(List.generate(
         6, // Hiển thị các năm gần đây (có thể thay đổi số lượng nếu cần)
         (index) {
           int year = now.year - (5 - index); // Hiển thị các năm gần đây
-          return Tab(child: Text('Năm $year'));
+          return Tab(child: Text('Year $year'));
         },
       ));
     }
@@ -97,15 +97,15 @@ class _HomePageTransactionState extends State<HomePageTransaction>
     _tabController = TabController(length: tabs.length, vsync: this);
 
     // Nếu là "Tháng", nhảy đến tháng hiện tại
-    if (selectedFilter == 'Tháng') {
+    if (selectedFilter == 'Month') {
       int currentMonth = now.month; // Tháng hiện tại (bắt đầu từ 0)
       _tabController.animateTo(currentMonth);
     }
     // Nếu là "Ngày", nhảy đến ngày hiện tại
-    else if (selectedFilter == 'Ngày') {
+    else if (selectedFilter == 'Day') {
       int currentDay = now.day;
       _tabController.animateTo(currentDay);
-    } else if (selectedFilter == 'Năm') {
+    } else if (selectedFilter == 'Year') {
       int currentYear = now.year;
       // Tính vị trí của năm hiện tại trong các tab (5 năm gần nhất)
       int yearIndex = currentYear - (now.year - 5);
@@ -123,9 +123,9 @@ class _HomePageTransactionState extends State<HomePageTransaction>
         context: context,
         position: RelativeRect.fromLTRB(positionDx, positionDy, 0.0, 0.0),
         items: [
-          const PopupMenuItem<String>(value: 'Ngày', child: Text('Ngày')),
-          const PopupMenuItem<String>(value: 'Tháng', child: Text('Tháng')),
-          const PopupMenuItem<String>(value: 'Năm', child: Text('Năm')),
+          const PopupMenuItem<String>(value: 'Day', child: Text('Day')),
+          const PopupMenuItem<String>(value: 'Month', child: Text('Month')),
+          const PopupMenuItem<String>(value: 'Year', child: Text('Year')),
         ]).then((selectedValue) {
       if (selectedValue != null) {
         _onFilterSelected(selectedValue); // Cập nhật lọc khi chọn một mục
@@ -177,7 +177,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
                   const Padding(
                     padding: EdgeInsets.only(left: 50),
                     child: Text(
-                      "Số dư",
+                      "Balance",
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.black,
@@ -265,7 +265,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
                     // Lấy năm tương ứng với tab (có thể tính năm cho mỗi tab)
                     DateTime tabYear = getTabYearForIndex(index);
                     // Kiểm tra điều kiện lọc dựa trên lựa chọn (Tháng, Ngày, Năm)
-                    if (selectedFilter == 'Tháng') {
+                    if (selectedFilter == 'Month') {
                       var selectedMonth = DateTime(now.year, index, 1);
 
                       filteredIncomeData = incomeData.where((item) {
@@ -277,7 +277,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
                         return item['date'].month == selectedMonth.month &&
                             item['date'].year == selectedMonth.year;
                       }).toList();
-                    } else if (selectedFilter == 'Ngày') {
+                    } else if (selectedFilter == 'Day') {
                       filteredIncomeData = incomeData.where((item) {
                         return item['date'].day == tabDate.day &&
                             item['date'].month == tabDate.month &&
@@ -289,7 +289,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
                             item['date'].month == tabDate.month &&
                             item['date'].year == tabDate.year;
                       }).toList();
-                    } else if (selectedFilter == 'Năm') {
+                    } else if (selectedFilter == 'Year') {
                       filteredIncomeData = incomeData.where((item) {
                         return item['date'].year == tabYear.year;
                       }).toList();
@@ -314,7 +314,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
   // Hàm lấy ngày cho mỗi tab
   DateTime getTabDateForIndex(int index) {
     // Trả về ngày tương ứng với tab dựa vào chỉ số index
-    if (selectedFilter == 'Ngày') {
+    if (selectedFilter == 'Day') {
       // Giả sử bạn muốn lấy ngày đầu của tháng đó hoặc bất kỳ logic nào khác cho ngày
       return DateTime(
           now.year, now.month, index); // Tháng và ngày tương ứng với tab
@@ -326,7 +326,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
   // Hàm lấy năm cho mỗi tab
   DateTime getTabYearForIndex(int index) {
     // Trả về năm tương ứng với tab dựa vào chỉ số index
-    if (selectedFilter == 'Năm') {
+    if (selectedFilter == 'Year') {
       // Giả sử bạn muốn lấy năm hiện tại cộng với chỉ số tab (hoặc có thể thay đổi logic năm)
       return DateTime(now.year, index - 5, 1); // Trả về năm cho tab
     }
@@ -367,16 +367,16 @@ class _HomePageTransactionState extends State<HomePageTransaction>
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text("Tùy chọn"),
+            title: const Text("Option"),
             content: Container(
               width: 50.0,
               height: 50.0,
               decoration: const BoxDecoration(
                 shape: BoxShape.rectangle,
                 color: Color(0x00ffffff),
-                borderRadius: BorderRadius.all(Radius.circular(0.0)),
+                borderRadius: BorderRadius.all(Radius.circular(1.0)),
               ),
-              child: const Text("Bạn muốn xóa hay sửa?"),
+              child: const Text("Do you want to DELETE or EDIT?"),
             ),
             actions: [
               TextButton(
@@ -391,7 +391,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
                     ),
                   );
                 },
-                child: const Text("Sửa"),
+                child: const Text("EDIT"),
               ),
               TextButton(
                 onPressed: () async {
@@ -400,7 +400,8 @@ class _HomePageTransactionState extends State<HomePageTransaction>
                   onDelete(); // Xóa khỏi danh sách hiển thị
                   Navigator.pop(context);
                 },
-                child: const Text("Xóa", style: TextStyle(color: Colors.red)),
+                child:
+                    const Text("DELETE", style: TextStyle(color: Colors.red)),
               ),
             ],
           );
@@ -416,13 +417,17 @@ class _HomePageTransactionState extends State<HomePageTransaction>
           decoration: BoxDecoration(
             color: Colors.white,
             border: Border.all(color: Colors.grey.shade300),
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0),
+            ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Column(
                 children: [
-                  const Text("Tổng Thu",
+                  const Text("Total Income",
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Text(
                     CustomMoney().formatCurrencyTotalQuyDoi(totalIncome),
@@ -435,7 +440,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
               ),
               Column(
                 children: [
-                  const Text("Tổng Chi",
+                  const Text("Total Expense",
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Text(
                     CustomMoney().formatCurrencyTotalQuyDoi(totalExpense),
@@ -448,7 +453,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
               ),
               Column(
                 children: [
-                  const Text("Số Dư",
+                  const Text("Balance",
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Text(
                     CustomMoney().formatCurrencyTotalQuyDoi(netBalance),
@@ -462,7 +467,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 10),
         // ListView hiển thị các giao dịch
         Expanded(
           child: incomeData.isEmpty && expenseData.isEmpty
@@ -501,20 +506,8 @@ class _HomePageTransactionState extends State<HomePageTransaction>
 
                     return Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 5.0, horizontal: 0),
+                          vertical: 7.0, horizontal: 5),
                       child: InkWell(
-                        onLongPress: () {
-                          showOptionsDialog(context, data, groupType, () {
-                            // Cập nhật giao diện sau khi xóa
-                            setState(() {
-                              if (isIncome) {
-                                incomeData.removeAt(index);
-                              } else {
-                                expenseData.removeAt(index - incomeData.length);
-                              }
-                            });
-                          });
-                        },
                         child: Material(
                           // Giúp hiển thị hiệu ứng bấm
                           color: Colors.transparent,
@@ -534,8 +527,6 @@ class _HomePageTransactionState extends State<HomePageTransaction>
                                 });
                               });
                             },
-                            // Hiệu ứng splash khi nhấn
-                            splashColor: Colors.blue.withOpacity(1),
                             // Màu khi giữ
                             highlightColor:
                                 const Color.fromARGB(255, 223, 223, 223)
@@ -543,7 +534,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
                             child: Container(
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(0),
+                                borderRadius: BorderRadius.circular(30.0),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.grey.withOpacity(0.2),
@@ -553,7 +544,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
                                 ],
                               ),
                               child: ListTile(
-                                contentPadding: const EdgeInsets.all(16),
+                                contentPadding: const EdgeInsets.all(10),
                                 title: Row(
                                   children: [
                                     Image.asset(
@@ -578,7 +569,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
                                           ),
                                         ),
                                         Text(
-                                          'Ngày: ${DateFormat('dd/MM/yyyy').format(data['date'])}',
+                                          'Date: ${DateFormat('dd/MM/yyyy').format(data['date'])}',
                                           style: TextStyle(
                                             color: Colors.grey[600],
                                             fontSize: 14,
@@ -588,14 +579,25 @@ class _HomePageTransactionState extends State<HomePageTransaction>
                                     ),
                                   ],
                                 ),
-                                trailing: Text(
-                                  CustomMoney().formatCurrencyTotalNoSymbol(
-                                      data['amount']),
-                                  style: TextStyle(
-                                    color: isIncome ? Colors.blue : Colors.red,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                  ),
+                                trailing: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        CustomMoney()
+                                            .formatCurrencyTotalNoSymbol(
+                                                data['amount']),
+                                        style: TextStyle(
+                                          color: isIncome
+                                              ? Colors.blue
+                                              : Colors.red,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),

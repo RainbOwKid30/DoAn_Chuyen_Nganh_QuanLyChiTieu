@@ -40,13 +40,13 @@ class _BottomNavigationCustomState extends State<BottomNavigationCustom> {
             // Icon Home
             _buildBottomNavItem(
               icon: CupertinoIcons.home,
-              label: 'Tổng quan',
+              label: 'Home',
               index: 0,
             ),
             // Icon Transaction
             _buildBottomNavItem(
               icon: FontAwesomeIcons.wallet,
-              label: 'Sổ giao dịch',
+              label: 'Transaction',
               index: 1,
             ),
             // Nút cộng
@@ -86,13 +86,13 @@ class _BottomNavigationCustomState extends State<BottomNavigationCustom> {
             // Icon Budget
             _buildBottomNavItem(
               icon: FontAwesomeIcons.chartPie,
-              label: 'Ngân Sách',
+              label: 'Budget',
               index: 3,
             ),
             // Icon Account
             _buildBottomNavItem(
               icon: FontAwesomeIcons.user,
-              label: 'Tài khoản',
+              label: 'Account',
               index: 4,
             ),
           ],

@@ -59,7 +59,7 @@ class _HomePageChonNhomState extends State<HomePageChonNhom>
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          "Chọn Nhóm",
+          "Select Category",
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(

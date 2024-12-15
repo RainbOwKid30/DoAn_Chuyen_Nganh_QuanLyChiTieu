@@ -66,7 +66,7 @@ class _EditUserPageState extends State<HomePageEdit> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          "Thông tin người dùng",
+          "User Information",
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -91,8 +91,7 @@ class _EditUserPageState extends State<HomePageEdit> {
                 Expanded(
                   child: TextField(
                     controller: _nameController,
-                    decoration:
-                        const InputDecoration(labelText: "Tên người dùng"),
+                    decoration: const InputDecoration(labelText: "User name"),
                     enabled: isEditingName,
                   ),
                 ),
@@ -143,7 +142,7 @@ class _EditUserPageState extends State<HomePageEdit> {
                 minimumSize: const Size(double.infinity, 50),
               ),
               child: const Text(
-                'Lưu',
+                'Save',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

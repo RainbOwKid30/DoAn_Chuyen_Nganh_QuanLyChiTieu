@@ -11,7 +11,7 @@ class HomePageIconpickerscreen extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          "Chọn Icon",
+          "Select Icon",
           style: TextStyle(
             color: Color(0xff000000),
             fontWeight: FontWeight.bold,

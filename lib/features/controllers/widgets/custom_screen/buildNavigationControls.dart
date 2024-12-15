@@ -29,7 +29,7 @@ class BuildNavigationControls extends StatelessWidget {
         Column(
           children: [
             Text(
-              mainPageIndex == 0 ? "Xu hướng báo cáo" : "Báo cáo chi tiêu",
+              mainPageIndex == 0 ? "Trending Report" : "Spending Report",
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,

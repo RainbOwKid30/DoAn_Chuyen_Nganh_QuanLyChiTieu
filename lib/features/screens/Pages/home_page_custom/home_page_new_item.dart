@@ -27,7 +27,7 @@ class _HomePageNewItemState extends State<HomePageNewItem> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          "Nhóm mới",
+          "New Group",
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
@@ -71,7 +71,7 @@ class _HomePageNewItemState extends State<HomePageNewItem> {
                     controller:
                         _nameController, // Sử dụng controller để quản lý TextField
                     decoration: const InputDecoration(
-                      labelText: "Tên nhóm",
+                      labelText: "Group name",
                     ),
                   ),
                 ),
@@ -124,7 +124,7 @@ class _HomePageNewItemState extends State<HomePageNewItem> {
                     }
                   }
                 },
-                child: const Text("Lưu nhóm"),
+                child: const Text("Save"),
               ),
             ),
           ],

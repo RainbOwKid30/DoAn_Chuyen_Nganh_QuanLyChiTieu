@@ -33,11 +33,11 @@ class _HomePagePlusState extends State<HomePagePlus> {
   final TextEditingController _amountController = TextEditingController();
 
   // Dữ liệu cho chọn nhóm
-  String selectedGroupName = 'Chọn nhóm'; // Giá trị mặc định
+  String selectedGroupName = 'Select Category'; // Giá trị mặc định
   String selectedGroupIcon = 'question_mark'; // Icon mặc định
 
   // Dữ liệu ghi chú thêm
-  String selectedGhiChu = "Ghi chú thêm";
+  String selectedGhiChu = "Note";
 
   // Date selection
   DateTime? selectedDate;
@@ -157,12 +157,12 @@ class _HomePagePlusState extends State<HomePagePlus> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Ghi chú thêm"),
+          title: const Text("Note"),
           content: TextField(
             controller: noteController,
             maxLength: 100, // Giới hạn 100 ký tự
             decoration: const InputDecoration(
-              hintText: "Nhập ghi chú",
+              hintText: "Input Note",
               border: OutlineInputBorder(),
             ),
           ),
@@ -171,18 +171,18 @@ class _HomePagePlusState extends State<HomePagePlus> {
               onPressed: () {
                 Navigator.pop(context); // Đóng dialog mà không lưu
               },
-              child: const Text("Hủy"),
+              child: const Text("Cancel"),
             ),
             TextButton(
               onPressed: () {
                 setState(() {
                   selectedGhiChu = noteController.text.isEmpty
-                      ? "Thêm ghi chú"
+                      ? "Note"
                       : noteController.text;
                 });
                 Navigator.pop(context); // Đóng dialog
               },
-              child: const Text("Lưu"),
+              child: const Text("Save"),
             ),
           ],
         );
@@ -194,12 +194,12 @@ class _HomePagePlusState extends State<HomePagePlus> {
   Widget build(BuildContext context) {
     String formattedDate = selectedDate != null
         ? DateFormat('dd/MM/yyyy').format(selectedDate!)
-        : 'Ngày / Tháng / Năm';
+        : 'Day / Month / Year';
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          "Thêm Giao Dịch",
+          "Add Transaction",
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -245,7 +245,7 @@ class _HomePagePlusState extends State<HomePagePlus> {
                       fontWeight: FontWeight.bold,
                     ),
                     decoration: InputDecoration(
-                      labelText: 'Nhập số tiền',
+                      labelText: 'Input Amount',
                       labelStyle: TextStyle(
                         color: transactionColor, // Màu label động
                         fontSize: 15,
@@ -332,7 +332,7 @@ class _HomePagePlusState extends State<HomePagePlus> {
                 const SizedBox(
                   width: 20,
                 ),
-                const Text("Tiền mặt"),
+                const Text("Cash"),
                 const SizedBox(
                   width: 20,
                 ),
@@ -358,7 +358,7 @@ class _HomePagePlusState extends State<HomePagePlus> {
                 minimumSize: const Size(double.infinity, 50),
               ),
               child: const Text(
-                'Lưu',
+                'Save',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

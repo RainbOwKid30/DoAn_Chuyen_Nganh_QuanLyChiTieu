@@ -27,7 +27,7 @@ class HomePageAccount extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(left: 20.0, top: 15, bottom: 15),
                 child: Text(
-                  "Tài khoản",
+                  "Account",
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 25,
@@ -123,31 +123,31 @@ class HomePageAccount extends StatelessWidget {
               CustomBuildoptionrow(
                 context1: context,
                 icon: const Icon(FontAwesomeIcons.wallet),
-                text: "Ví của tôi",
+                text: "My wallet",
                 page: const HomePageItem(),
               ),
               CustomBuildoptionrow(
                 context1: context,
                 icon: const Icon(FontAwesomeIcons.boxesStacked),
-                text: "Nhóm",
+                text: "Group",
                 page: const HomePageItem(),
               ),
               CustomBuildoptionrow(
                 context1: context,
                 icon: const Icon(FontAwesomeIcons.fileInvoice),
-                text: "Hóa đơn",
+                text: "Bill",
                 page: const HomePageItem(),
               ),
               CustomBuildoptionrow(
                 context1: context,
                 icon: const Icon(FontAwesomeIcons.toolbox),
-                text: "Công cụ",
+                text: "Tool",
                 page: const HomePageItem(),
               ),
               CustomBuildoptionrow(
                 context1: context,
                 icon: const Icon(FontAwesomeIcons.gears),
-                text: "Cài đặt",
+                text: "Setting",
                 page: const HomePageItem(),
               ),
             ],
@@ -165,7 +165,7 @@ class HomePageAccount extends StatelessWidget {
                   // Người dùng đã đăng xuất thành công
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Đăng xuất thành công'),
+                      content: Text('Logout successfully!!!'),
                       backgroundColor: Colors.green,
                     ),
                   );
@@ -191,7 +191,7 @@ class HomePageAccount extends StatelessWidget {
                 minimumSize: const Size(double.infinity, 50),
               ),
               child: const Text(
-                'Đăng xuất',
+                'Log out',
                 style: TextStyle(
                   color: Colors.red,
                   fontSize: 16,

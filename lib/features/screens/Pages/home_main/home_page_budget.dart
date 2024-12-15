@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/providers/BudgetProvider.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_money.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_page_custom/home_page_add_budget.dart';
+import 'package:quan_ly_chi_tieu/features/screens/Pages/home_page_custom/home_page_edit_budget.dart';
 
 class HomePageBudget extends StatefulWidget {
   const HomePageBudget({super.key});
@@ -32,7 +33,7 @@ class _HomePageBudgetState extends State<HomePageBudget>
     // Khởi tạo AnimationController và Tween
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2), // Thời gian hiệu ứng
+      duration: const Duration(seconds: 1), // Thời gian hiệu ứng
     );
 
     // Tạo một Tween từ 0 đến giá trị chi tiêu
@@ -48,151 +49,95 @@ class _HomePageBudgetState extends State<HomePageBudget>
     // Bắt đầu animation
     _startAnimation();
 
-    Provider.of<BudgetProvider>(context, listen: false).fetchBudgetData();
+    // Lấy dữ liệu ngân sách từ BudgetProvider
+    final budgetProvider = Provider.of<BudgetProvider>(context, listen: false);
+    budgetProvider.fetchBudgetData().then((_) {
+      setState(() {
+        totalBudget = budgetProvider.totalBudget;
+        spent = budgetProvider.spent;
+        sotienconlai = budgetProvider.sotienconlai;
+      });
+      _startAnimation(); // Bắt đầu animation khi dữ liệu đã có
+    });
   }
 
   // Hàm bắt đầu animation với giá trị progress mới
   void _startAnimation() {
-    // Kiểm tra nếu totalBudget == 0
     if (totalBudget == 0) {
-      // Nếu totalBudget bằng 0, không có chi tiêu, đặt progress là 0
       _progressAnimation = Tween<double>(begin: 0, end: 0).animate(
         CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
       );
     } else {
-      // Tính toán phần trăm chi tiêu
-      double progress = spent / totalBudget; // Tính toán phần trăm chi tiêu
-
+      double progress = spent / totalBudget; // Tính toán tỷ lệ chi tiêu
       _progressAnimation = Tween<double>(begin: 0, end: progress).animate(
         CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
       );
     }
-
-    _animationController.forward(from: 0); // Bắt đầu hiệu ứng
+    // Đảm bảo animation bắt đầu lại từ đầu
+    _animationController.forward(from: 0);
   }
 
-  Future<void> _fetchBudgetData() async {
+  Future<void> deleteItem(String docId) async {
     try {
-      DateTime now = DateTime.now();
-      int currentYear = now.year;
-      int currentMonth = now.month;
-
-      DateTime firstDayOfMonth = DateTime(currentYear, currentMonth, 1);
-      DateTime lastDayOfMonth = DateTime(currentYear, currentMonth + 1, 0);
-
-      QuerySnapshot budgetSnapshot = await FirebaseFirestore.instance
+      // Xóa giao dịch từ Firestore dựa trên docId
+      await FirebaseFirestore.instance
           .collection('budgets')
-          .where('startDate', isGreaterThanOrEqualTo: firstDayOfMonth)
-          .where('startDate', isLessThanOrEqualTo: lastDayOfMonth)
-          .get();
-
-      double totalBudget = 0;
-      List<Map<String, dynamic>> items = [];
-
-      // Lấy tất cả categoryId từ ngân sách
-      List<String> categoryIds = [];
-
-      for (var doc in budgetSnapshot.docs) {
-        totalBudget += doc['amount'];
-        String categoryId = doc['categoryId'];
-        categoryIds.add(categoryId); // Lưu categoryId để lấy chi tiêu sau
-
-        // Truy vấn category thông qua categoryId
-        await _fetchCategoryInfo(categoryId).then((categoryInfo) {
-          items.add({
-            'id': doc.id,
-            'category': categoryInfo['name'],
-            'icon': categoryInfo['icon'],
-            'amount': doc['amount'],
-            // Số tiền còn lại = số tiền ngân sách ban đầu
-            'remainingAmount': doc['amount'],
-            'categoryId': categoryId, // Lưu categoryId vào item
-          });
-        });
-      }
-
-      double totalSpent = 0;
-
-      // Nếu có categoryId trong budgets, tính chi tiêu theo categoryId
-      if (categoryIds.isNotEmpty && totalBudget > 0) {
-        // Khai báo lại transactionSnapshot ở đây
-        QuerySnapshot transactionSnapshot = await FirebaseFirestore.instance
-            .collection('transactions')
-            .doc('groups_thu_chi')
-            .collection('KhoanChi')
-            .where('date', isGreaterThanOrEqualTo: firstDayOfMonth)
-            .where('date', isLessThanOrEqualTo: lastDayOfMonth)
-            .where('categoryId', whereIn: categoryIds) // Lọc theo categoryId
-            .get();
-
-        for (var doc in transactionSnapshot.docs) {
-          totalSpent += doc['amount'];
-        }
-
-        // Cập nhật số tiền còn lại cho mỗi item
-        for (var i = 0; i < items.length; i++) {
-          String categoryId = items[i]['categoryId'];
-          double spentForCategory = 0;
-
-          // Tính chi tiêu cho từng categoryId
-          for (var doc in transactionSnapshot.docs) {
-            if (doc['categoryId'] == categoryId) {
-              spentForCategory += doc['amount'];
-            }
-          }
-
-          // Cập nhật số tiền còn lại cho mỗi item
-          items[i]['remainingAmount'] = items[i]['amount'] - spentForCategory;
-        }
-      }
-
-      if (mounted) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            setState(() {
-              this.totalBudget = totalBudget;
-              spent = totalSpent;
-              sotienconlai = totalBudget - totalSpent;
-              budgetItems = items;
-            });
-
-            _startAnimation();
-          }
-        });
-      }
+          .doc(docId) // Xóa tài liệu dựa trên docId
+          .delete();
+      print("Đã xóa giao dịch thành công");
     } catch (e) {
-      print("Error fetching budget data: $e");
+      print("Lỗi khi xóa tài liệu: $e");
     }
   }
 
-  // Lấy thông tin category từ Firestore qua categoryId
-  Future<Map<String, dynamic>> _fetchCategoryInfo(String categoryId) async {
-    try {
-      DocumentSnapshot categoryDoc = await FirebaseFirestore.instance
-          .collection('categories')
-          .doc('group_category') // Lấy danh mục group_category
-          .collection('KhoanChi') // Lấy KhoanChi bên trong group_category
-          .doc(categoryId) // Truy vấn theo categoryId
-          .get();
-
-      if (categoryDoc.exists) {
-        return {
-          'name': categoryDoc['name'],
-          'icon': categoryDoc['icon'],
-        };
-      } else {
-        return {
-          'name': 'Không có tên',
-          'icon': Icons.help_outline, // Nếu không tìm thấy, gán icon mặc định
-        };
-      }
-    } catch (e) {
-      print("Error fetching category info: $e");
-      return {
-        'name': 'Không có tên',
-        'icon': Icons.help_outline,
-      };
-    }
+  void showOptionsDialog(BuildContext context, Map<String, dynamic> budgetItem,
+      Function onDelete) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Option"),
+          content: Container(
+            width: 50.0,
+            height: 50.0,
+            decoration: const BoxDecoration(
+              shape: BoxShape.rectangle,
+              color: Color(0x00ffffff),
+              borderRadius: BorderRadius.all(Radius.circular(1.0)),
+            ),
+            child: const Text("Do you want to DELETE or EDIT?"),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomePageEditBudget(
+                      data: budgetItem, // Truyền dữ liệu item qua đây
+                    ),
+                  ),
+                );
+              },
+              child: const Text("EDIT"),
+            ),
+            TextButton(
+              onPressed: () async {
+                // Xóa khỏi Firestore
+                await deleteItem(budgetItem['id']);
+                onDelete(); // Xóa khỏi danh sách hiển thị
+                Navigator.pop(context);
+              },
+              child: const Text(
+                "DELETE",
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -208,7 +153,7 @@ class _HomePageBudgetState extends State<HomePageBudget>
 
   Widget _buildTabBarView() {
     final screenWidth = MediaQuery.of(context).size.width;
-    const currentMonthLabel = "Tháng này";
+    const currentMonthLabel = "This month";
 
     return DefaultTabController(
       length: 1, // Số lượng tab
@@ -217,7 +162,7 @@ class _HomePageBudgetState extends State<HomePageBudget>
         appBar: AppBar(
           title: const Center(
             child: Text(
-              "Ngân sách Tổng",
+              "Total Budget",
               style: TextStyle(
                 color: Color(0xFF000000),
                 fontWeight: FontWeight.bold,
@@ -255,7 +200,7 @@ class _HomePageBudgetState extends State<HomePageBudget>
                                 Column(
                                   children: [
                                     Text(
-                                      "Mức độ chi tiêu (${(_progressAnimation.value * 100).toStringAsFixed(1)}%)",
+                                      "Percentage of spending (${(_progressAnimation.value * 100).toStringAsFixed(1)}%)",
                                       style: const TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.bold,
@@ -280,7 +225,7 @@ class _HomePageBudgetState extends State<HomePageBudget>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      "Số tiền còn lại bạn có thể chi",
+                                      "The remaining amount you can spend",
                                       style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold,
@@ -321,7 +266,7 @@ class _HomePageBudgetState extends State<HomePageBudget>
                                               fontWeight: FontWeight.bold),
                                         ),
                                         const Text(
-                                          "Tổng ngân sách",
+                                          "Total Budget",
                                           style: TextStyle(
                                             color: Color.fromARGB(
                                                 255, 115, 114, 114),
@@ -349,7 +294,7 @@ class _HomePageBudgetState extends State<HomePageBudget>
                                               fontWeight: FontWeight.bold),
                                         ),
                                         const Text(
-                                          "Tổng đã chi",
+                                          "Total spent",
                                           style: TextStyle(
                                             color: Color.fromARGB(
                                                 255, 115, 114, 114),
@@ -394,54 +339,88 @@ class _HomePageBudgetState extends State<HomePageBudget>
                     ),
                     const SizedBox(height: 10),
                     // List Budget Items
-                    Column(
-                      children: [
-                        ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: budgetProvider.budgetItems.length,
-                          itemBuilder: (context, index) {
-                            var budgetItem = budgetProvider.budgetItems[index];
-                            return Card(
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.all(16),
-                                title: Row(
-                                  children: [
-                                    Image.asset(
-                                      'assets/images/${budgetItem['icon']}.png',
-                                      scale: 15,
-                                    ),
-                                    const SizedBox(width: 20),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(budgetItem['category']),
-                                        Text(
-                                          "Số tiền: ${CustomMoney().formatCurrencyTotalNoSymbol(budgetItem['amount'])}",
-                                          style: const TextStyle(
-                                            color: Colors.green,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: budgetProvider.budgetItems.length,
+                        itemBuilder: (context, index) {
+                          var budgetItem = budgetProvider.budgetItems[index];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 5.0, horizontal: 5),
+                            child: InkWell(
+                              onLongPress: () {
+                                showOptionsDialog(context, budgetItem, () {
+                                  // Xử lý hành động khi long press
+                                  setState(() {
+                                    budgetProvider.budgetItems.removeAt(index);
+                                  });
+                                });
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(40),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.2),
+                                      blurRadius: 4,
+                                      spreadRadius: 1,
                                     ),
                                   ],
                                 ),
-                                trailing: Text(
-                                  CustomMoney().formatCurrencyTotalNoSymbol(
-                                      budgetItem['remainingAmount']),
-                                  style: const TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.all(15),
+                                  title: Row(
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/${budgetItem['icon']}.png',
+                                        scale: 15,
+                                      ),
+                                      const SizedBox(width: 20),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(budgetItem['category']),
+                                          Text(
+                                            "Amount: ${CustomMoney().formatCurrencyTotalNoSymbol(budgetItem['amount'])}",
+                                            style: const TextStyle(
+                                              color: Colors.green,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  trailing: Column(
+                                    children: [
+                                      const Text(
+                                        "Remaining amount: ",
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        CustomMoney()
+                                            .formatCurrencyTotalNoSymbol(
+                                                budgetItem['remainingAmount']),
+                                        style: const TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),

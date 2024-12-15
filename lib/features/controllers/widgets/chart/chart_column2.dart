@@ -42,8 +42,8 @@ class _ChartColumnState extends State<ChartColumn2> {
       formattedEndLastMonth = expenseData['formattedEndLastMonth'] ?? '';
 
       chartData = [
-        ChartColumnData('Tháng trước', totalExpenseLastMonth, null),
-        ChartColumnData('Tháng này', totalExpenseThisMonth, null),
+        ChartColumnData('Last month', totalExpenseLastMonth, null),
+        ChartColumnData('This month', totalExpenseThisMonth, null),
       ];
     });
   }
@@ -57,7 +57,7 @@ class _ChartColumnState extends State<ChartColumn2> {
           showInfoBox = true;
 
           // Kiểm tra cột "Tháng trước"
-          if (chartData[0].x == 'Tháng trước') {
+          if (chartData[0].x == 'Last month') {
             // Hiển thị ngày tháng của tháng trước
             infoAmount = CustomMoney().formatCurrency(totalExpenseLastMonth);
             infoBoxText = '$formattedStartLastMonth - $formattedEndLastMonth';
@@ -110,7 +110,7 @@ class _ChartColumnState extends State<ChartColumn2> {
                               dataSource: chartData,
                               width: 0.4,
                               pointColorMapper: (ChartColumnData data, _) =>
-                                  data.x == 'Tháng trước'
+                                  data.x == 'Last month'
                                       ? const Color.fromARGB(255, 242, 136, 136)
                                       : Colors.red,
                               xValueMapper: (ChartColumnData data, _) => data.x,
@@ -130,7 +130,7 @@ class _ChartColumnState extends State<ChartColumn2> {
                           ),
                           const SizedBox(width: 10),
                           const Text(
-                            "Tổng chi",
+                            "Total Expense",
                             style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,

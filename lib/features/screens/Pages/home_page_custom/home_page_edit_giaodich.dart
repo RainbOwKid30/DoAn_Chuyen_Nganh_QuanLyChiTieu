@@ -148,12 +148,12 @@ class _HomePageEditGiaodichState extends State<HomePageEditGiaodich> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Ghi chú thêm"),
+          title: const Text("Note"),
           content: TextField(
             controller: noteController,
             maxLength: 100, // Giới hạn 100 ký tự
             decoration: const InputDecoration(
-              hintText: "Nhập ghi chú",
+              hintText: "Input Note",
               border: OutlineInputBorder(),
             ),
           ),
@@ -162,18 +162,18 @@ class _HomePageEditGiaodichState extends State<HomePageEditGiaodich> {
               onPressed: () {
                 Navigator.pop(context); // Đóng dialog mà không lưu
               },
-              child: const Text("Hủy"),
+              child: const Text("Cancel"),
             ),
             TextButton(
               onPressed: () {
                 setState(() {
                   selectedGhiChu = noteController.text.isEmpty
-                      ? "Thêm ghi chú"
+                      ? "Note"
                       : noteController.text;
                 });
                 Navigator.pop(context); // Đóng dialog
               },
-              child: const Text("Lưu"),
+              child: const Text("Save"),
             ),
           ],
         );
@@ -187,7 +187,7 @@ class _HomePageEditGiaodichState extends State<HomePageEditGiaodich> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          "Sửa thông tin giao dịch",
+          "Edit Transaction Information",
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -223,7 +223,7 @@ class _HomePageEditGiaodichState extends State<HomePageEditGiaodich> {
                       fontWeight: FontWeight.bold,
                     ),
                     decoration: InputDecoration(
-                      labelText: 'Nhập số tiền',
+                      labelText: 'Input Amount',
                       labelStyle: TextStyle(
                         color: transactionColor,
                         fontSize: 15,
@@ -247,7 +247,7 @@ class _HomePageEditGiaodichState extends State<HomePageEditGiaodich> {
                       FilteringTextInputFormatter.digitsOnly,
                       // Sử dụng TextInputFormatter để thêm dấu phẩy khi người dùng nhập
                       TextInputFormatter.withFunction((oldValue, newValue) {
-                        String newText = newValue.text.replaceAll(',','');
+                        String newText = newValue.text.replaceAll(',', '');
                         String formattedText = CustomMoney()
                             .formatCurrencyTotalNoSymbol(
                                 double.tryParse(newText) ?? 0.0);
@@ -308,7 +308,7 @@ class _HomePageEditGiaodichState extends State<HomePageEditGiaodich> {
                 minimumSize: const Size(double.infinity, 50),
               ),
               child: const Text(
-                'Lưu',
+                'Save',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

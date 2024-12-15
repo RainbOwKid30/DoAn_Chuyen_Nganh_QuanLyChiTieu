@@ -39,7 +39,7 @@ class _HomePageSelectBudgetState extends State<HomePageSelectBudget> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          "Chọn Category",
+          "Select Category",
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(

@@ -9,51 +9,24 @@ import 'package:provider/provider.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/providers/BudgetProvider.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_buildOptionRow.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_money.dart';
-import 'package:quan_ly_chi_tieu/features/models/user_model.dart';
-import 'package:quan_ly_chi_tieu/features/screens/Pages/home_main/home_page_budget.dart';
-import 'package:quan_ly_chi_tieu/features/screens/Pages/home_page_custom/home_page_select_budget.dart';
+import 'package:quan_ly_chi_tieu/features/screens/Pages/home_page_custom/home_page_chon_nhom.dart';
 
-class HomePageAddBudget extends StatefulWidget {
-  const HomePageAddBudget({super.key});
+class HomePageEditBudget extends StatefulWidget {
+  final Map<String, dynamic> data; // Nhận dữ liệu từ màn hình trước
+
+  const HomePageEditBudget({super.key, required this.data});
 
   @override
-  State<HomePageAddBudget> createState() => _HomePageAddBudgetState();
+  State<HomePageEditBudget> createState() => _HomePageEditBudgetState();
 }
 
-class _HomePageAddBudgetState extends State<HomePageAddBudget> {
+class _HomePageEditBudgetState extends State<HomePageEditBudget> {
+  late TextEditingController _amountController; // Controller cho số tiền
+  late String selectedGroupName; // Tên nhóm
+  late String selectedGroupIcon; // Icon nhóm
+  late String selectedGhiChu; // Ghi chú
   final User? firebaseUser = FirebaseAuth.instance.currentUser;
-  UserModel? userModel;
-  bool isEditingName = false;
-  bool isEditingEmail = false;
-  // Giá trị mặc định là thu
   String transactionType = 'Khoản Thu';
-  // Màu mặc định cho thu (Xanh lá)
-  Color transactionColor = Colors.green;
-  final TextEditingController _amountController = TextEditingController();
-
-  // Dữ liệu cho chọn nhóm
-  String selectedGroupName = 'Select Category'; // Giá trị mặc định
-  String selectedGroupIcon = 'question_mark'; // Icon mặc định
-
-  // Date selection
-  DateTime? selectedDate;
-
-  // Hàm để tính toán ngày đầu và ngày cuối của tháng hiện tại
-  void setCurrentMonthDates() {
-    final DateTime now = DateTime.now();
-    // First day of current month
-    final DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
-    // Last day of current month
-    final DateTime lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
-
-    setState(() {
-      selectedDate = firstDayOfMonth; // Set the start date
-    });
-
-    // Update the start and end dates for the budget
-    startDate = firstDayOfMonth;
-    endDate = lastDayOfMonth;
-  }
 
   DateTime startDate = DateTime.now(); // Ngày bắt đầu
   DateTime endDate = DateTime.now(); // Ngày kết thúc
@@ -61,10 +34,92 @@ class _HomePageAddBudgetState extends State<HomePageAddBudget> {
   @override
   void initState() {
     super.initState();
-    setCurrentMonthDates(); // Đặt ngày đầu và ngày cuối tháng khi mở màn hình
+
+    // Khởi tạo dữ liệu từ widget.data
+    _amountController = TextEditingController(
+        text: CustomMoney().formatCurrencyTotalNoSymbol(widget.data['amount']));
+    selectedGroupName = widget.data['category'];
+    selectedGroupIcon = widget.data['icon'];
+    // Set initial dates from widget data
+    startDate = widget.data['startDate'].toDate();
+    endDate = widget.data['endDate'].toDate();
   }
 
-  String budgetId = FirebaseFirestore.instance.collection('budgets').doc().id;
+  Future<void> _selectStartAndEndDate(BuildContext context) async {
+    // Hiển thị dialog chọn cả ngày bắt đầu và kết thúc
+    final result = await showDialog<Map<String, DateTime>>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Chọn ngày bắt đầu và kết thúc'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                // Chọn ngày bắt đầu
+                ListTile(
+                  title: const Text('Chọn ngày bắt đầu'),
+                  subtitle: Text(
+                    DateFormat('dd/MM/yyyy').format(startDate),
+                  ),
+                  onTap: () async {
+                    final DateTime? pickedStart = await showDatePicker(
+                      context: context,
+                      initialDate: startDate,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2101),
+                    );
+                    if (pickedStart != null && pickedStart != startDate) {
+                      setState(() {
+                        startDate = pickedStart;
+                      });
+                    }
+                  },
+                ),
+                // Chọn ngày kết thúc
+                ListTile(
+                  title: const Text('Chọn ngày kết thúc'),
+                  subtitle: Text(
+                    DateFormat('dd/MM/yyyy').format(endDate),
+                  ),
+                  onTap: () async {
+                    final DateTime? pickedEnd = await showDatePicker(
+                      context: context,
+                      initialDate: endDate,
+                      firstDate: startDate,
+                      lastDate: DateTime(2101),
+                    );
+                    if (pickedEnd != null && pickedEnd != endDate) {
+                      setState(() {
+                        endDate = pickedEnd;
+                      });
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(
+                    context, {'startDate': startDate, 'endDate': endDate});
+              },
+              child: const Text('Xác nhận'),
+            ),
+          ],
+        );
+      },
+    );
+
+    // Nếu có giá trị trả về từ dialog, cập nhật lại giá trị cho các ngày
+    if (result != null) {
+      setState(() {
+        startDate = result['startDate']!;
+        endDate = result['endDate']!;
+      });
+    }
+  }
+
   void saveBudgets() async {
     if (firebaseUser == null) return;
 
@@ -94,14 +149,12 @@ class _HomePageAddBudgetState extends State<HomePageAddBudget> {
           // Lưu dữ liệu vào Firestore
           await FirebaseFirestore.instance
               .collection('budgets')
-              .doc(budgetId)
-              .set({
-            'docId': budgetId, // Lưu docId của tài liệu
-            'userId': firebaseUser!.uid,
+              .doc(widget.data['id']) // Sử dụng ID ngân sách đã có
+              .update({
             'categoryId': categoryId, // Lưu categoryId từ tài liệu KhoanChi
             'amount':
                 double.tryParse(_amountController.text.replaceAll(',', '')) ??
-                    0.0,
+                    0.0, // Lưu số tiền đã định dạng
             'startDate': startDate,
             'endDate': endDate,
           });
@@ -112,7 +165,7 @@ class _HomePageAddBudgetState extends State<HomePageAddBudget> {
           // Cập nhật lại dữ liệu ngân sách
           await budgetProvider.fetchBudgetData();
 
-          setState(() {});
+          setState(() {}); // Cập nhật UI
 
           // Quay lại trang trước sau khi lưu thành công
           Navigator.pop(context);
@@ -138,16 +191,36 @@ class _HomePageAddBudgetState extends State<HomePageAddBudget> {
     ).show();
   }
 
+// Hàm để mở HomePageChonNhom và lấy dữ liệu khi chọn item
+  void _openChonNhom() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const HomePageChonNhom()),
+    );
+
+    if (result != null) {
+      setState(() {
+        // Cập nhật tên nhóm và icon
+        selectedGroupName = result['name'];
+        selectedGroupIcon = result['icon'];
+
+        // Cập nhật loại khoản (thu/chi)
+        transactionType = result['type']; // Giả sử 'type' là thu hoặc chi
+
+        // Cập nhật màu sắc dựa trên loại khoản
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Format the start and end date
     String formattedDate =
         'This month (${DateFormat('d/MM').format(startDate)} - ${DateFormat('d/MM').format(endDate)})';
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          "Create Budget",
+          "Edit Budget",
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -157,21 +230,12 @@ class _HomePageAddBudgetState extends State<HomePageAddBudget> {
           color: const Color(0xff000000),
           icon: const Icon(FontAwesomeIcons.xmark),
           onPressed: () {
-            Navigator.pop(context, true); // Quay lại trang trước
+            Navigator.pop(context); // Quay lại trang trước
           },
         ),
       ),
       body: Column(
         children: [
-          // đường kẻ
-          const Padding(
-            padding: EdgeInsets.only(top: 10.0),
-            child: Divider(
-              thickness: 1,
-              color: Color(0xFFb7b7b7),
-            ),
-          ),
-          const SizedBox(height: 20),
           // Input Money
           Padding(
             padding: const EdgeInsets.only(left: 15.0),
@@ -186,32 +250,30 @@ class _HomePageAddBudgetState extends State<HomePageAddBudget> {
                   child: TextField(
                     controller: _amountController,
                     keyboardType: TextInputType.number,
-                    style: TextStyle(
-                      // Sử dụng màu động cho số tiền nhập vào
-                      color: transactionColor,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      color: Colors.green,
                     ),
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Input Amount',
                       labelStyle: TextStyle(
-                        color: transactionColor, // Màu label động
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
+                        color: Colors.green,
                       ),
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
-                          color: transactionColor, // Màu viền động
                           width: 2.0,
                         ),
                       ),
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
-                          color: transactionColor, // Màu viền động khi focus
                           width: 2.0,
                         ),
                       ),
                     ),
+                    // nhập số có dấu ,
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
                       // Sử dụng TextInputFormatter để thêm dấu phẩy khi người dùng nhập
@@ -240,8 +302,8 @@ class _HomePageAddBudgetState extends State<HomePageAddBudget> {
                   height: 30,
                 ),
                 text: selectedGroupName,
-                page: const HomePageSelectBudget(),
-                onTap: _openChonNhom,
+                page: const HomePageChonNhom(),
+                onTap: _openChonNhom, // Hàm mở chọn nhóm
               ),
               CustomBuildoptionrow(
                 context1: context,
@@ -251,48 +313,19 @@ class _HomePageAddBudgetState extends State<HomePageAddBudget> {
                   height: 30,
                 ),
                 text: formattedDate,
-                page: const HomePageBudget(),
-                onTap: () => setCurrentMonthDates(),
+                page: const HomePageChonNhom(),
+                onTap: () => _selectStartAndEndDate(context),
               ),
             ],
           ),
-
           Padding(
-            padding: const EdgeInsets.only(left: 20.0, top: 15.0),
-            child: Row(
-              children: [
-                Image.asset(
-                  'assets/images/wallet.png',
-                  width: 30,
-                  height: 30,
-                ),
-                const SizedBox(
-                  width: 20,
-                ),
-                const Text("Cash"),
-                const SizedBox(
-                  width: 20,
-                ),
-              ],
-            ),
-          ),
-          // Đẩy nút "Lưu" xuống cuối màn hình
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.all(50.0),
+            padding:
+                const EdgeInsets.only(left: 10, right: 10, bottom: 5, top: 5),
             child: ElevatedButton(
-              onPressed: () {
-                AwesomeDialog(
-                  context: context,
-                  dialogType: DialogType.success,
-                  animType: AnimType.rightSlide,
-                  title: 'Create budget successfully!!!',
-                  btnOkOnPress: saveBudgets,
-                ).show();
-              },
+              onPressed: saveBudgets,
               style: ElevatedButton.styleFrom(
                 // Độ rộng đầy đủ
-                minimumSize: const Size(double.infinity, 50),
+                minimumSize: const Size(double.infinity, 40),
               ),
               child: const Text(
                 'Save',
@@ -306,28 +339,5 @@ class _HomePageAddBudgetState extends State<HomePageAddBudget> {
         ],
       ),
     );
-  }
-
-  // Hàm để mở HomePageChonNhom và lấy dữ liệu khi chọn item
-  void _openChonNhom() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const HomePageSelectBudget()),
-    );
-
-    if (result != null) {
-      setState(() {
-        // Cập nhật tên nhóm và icon
-        selectedGroupName = result['name'];
-        selectedGroupIcon = result['icon'];
-
-        // Cập nhật loại khoản (thu/chi)
-        transactionType = result['type']; // Giả sử 'type' là thu hoặc chi
-
-        // Cập nhật màu sắc dựa trên loại khoản
-        transactionColor =
-            (transactionType == 'Khoản Chi') ? Colors.red : Colors.blue;
-      });
-    }
   }
 }

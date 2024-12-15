@@ -43,8 +43,8 @@ class _ChartColumnState extends State<ChartColumn> {
       formattedEndLastWeek = expenseData['formattedEndLastWeek'] ?? '';
 
       chartData = [
-        ChartColumnData('Tuần trước', totalExpenseLastWeek, null),
-        ChartColumnData('Tuần này', totalExpenseThisWeek, null),
+        ChartColumnData('Last week', totalExpenseLastWeek, null),
+        ChartColumnData('This week', totalExpenseThisWeek, null),
       ];
     });
   }
@@ -58,7 +58,7 @@ class _ChartColumnState extends State<ChartColumn> {
           showInfoBox = true;
 
           // Kiểm tra cột "Tuần trước"
-          if (chartData[0].x == 'Tuần trước') {
+          if (chartData[0].x == 'Last week') {
             // Hiển thị ngày tháng của tuần trước
             infoAmount = CustomMoney().formatCurrency(totalExpenseLastWeek);
             infoBoxText = '$formattedStartLastWeek - $formattedEndLastWeek';
@@ -111,7 +111,7 @@ class _ChartColumnState extends State<ChartColumn> {
                               dataSource: chartData,
                               width: 0.4,
                               pointColorMapper: (ChartColumnData data, _) =>
-                                  data.x == 'Tuần trước'
+                                  data.x == 'Last week'
                                       ? const Color.fromARGB(255, 242, 136, 136)
                                       : Colors.red,
                               xValueMapper: (ChartColumnData data, _) => data.x,
@@ -131,7 +131,7 @@ class _ChartColumnState extends State<ChartColumn> {
                           ),
                           const SizedBox(width: 10),
                           const Text(
-                            "Tổng chi",
+                            "Total Expense",
                             style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
