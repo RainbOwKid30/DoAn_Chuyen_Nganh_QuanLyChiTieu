@@ -335,7 +335,9 @@ class _LineChartSample2State extends State<HomeLineChart> {
             show: true,
             gradient: LinearGradient(
               colors: [
+                // ignore: deprecated_member_use
                 Colors.red.withOpacity(0.4),
+                // ignore: deprecated_member_use
                 Colors.white.withOpacity(1),
               ],
               begin: Alignment.topCenter,

@@ -180,7 +180,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
                       "Balance",
                       style: TextStyle(
                         fontSize: 18,
-                        color: Colors.black,
+                        color: Color.fromARGB(255, 138, 138, 138),
                         fontWeight: FontWeight.w500,
                       ),
                     ),

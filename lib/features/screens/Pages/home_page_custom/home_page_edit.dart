@@ -9,10 +9,10 @@ class HomePageEdit extends StatefulWidget {
   const HomePageEdit({super.key});
 
   @override
-  _EditUserPageState createState() => _EditUserPageState();
+  _HomePageEditState createState() => _HomePageEditState();
 }
 
-class _EditUserPageState extends State<HomePageEdit> {
+class _HomePageEditState extends State<HomePageEdit> {
   final User? firebaseUser = FirebaseAuth.instance.currentUser;
   UserModel? userModel;
   final _nameController = TextEditingController();

@@ -11,6 +11,7 @@ import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/buil
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_money.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_main_scaffold.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/providers/Transaction_Provider.dart';
+import 'package:quan_ly_chi_tieu/features/screens/Pages/home_page_custom/home_page_detail/home_page_report.dart';
 
 class HomePageThuChi extends StatefulWidget {
   const HomePageThuChi({super.key, this.onTap});
@@ -290,9 +291,10 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                 Expanded(
                   child: InkWell(
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Bạn đã bấm vào báo cáo chi tiết!')),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const HomePageReport()),
                       );
                     },
                     child: Container(

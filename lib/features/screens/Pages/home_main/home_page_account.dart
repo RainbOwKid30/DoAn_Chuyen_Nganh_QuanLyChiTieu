@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_buildOptionRow.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_build_user_name.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_main/home_page_item.dart';
+import 'package:quan_ly_chi_tieu/features/screens/Pages/home_page_custom/home_page_categories.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_page_custom/home_page_edit.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_welcome/home_page_welcome.dart';
 
@@ -129,8 +130,8 @@ class HomePageAccount extends StatelessWidget {
               CustomBuildoptionrow(
                 context1: context,
                 icon: const Icon(FontAwesomeIcons.boxesStacked),
-                text: "Group",
-                page: const HomePageItem(),
+                text: "Categories",
+                page: const HomePageCategories(),
               ),
               CustomBuildoptionrow(
                 context1: context,
@@ -162,13 +163,6 @@ class HomePageAccount extends StatelessWidget {
                 // Kiểm tra người dùng đã đăng xuất thành công chưa
                 User? user = FirebaseAuth.instance.currentUser;
                 if (user == null) {
-                  // Người dùng đã đăng xuất thành công
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Logout successfully!!!'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
                   // Điều hướng trở lại màn hình đăng nhập
                   Navigator.pushAndRemoveUntil(
                     context,

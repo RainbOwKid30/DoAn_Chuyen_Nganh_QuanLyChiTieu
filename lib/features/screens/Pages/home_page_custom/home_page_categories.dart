@@ -4,14 +4,14 @@ import 'package:quan_ly_chi_tieu/features/controllers/category_controller.dart';
 import 'package:quan_ly_chi_tieu/features/models/data_category_expense_income.dart';
 import 'home_page_new_item.dart'; // Import trang HomePageNewItem
 
-class HomePageChonNhom extends StatefulWidget {
-  const HomePageChonNhom({super.key});
+class HomePageCategories extends StatefulWidget {
+  const HomePageCategories({super.key});
 
   @override
-  State<HomePageChonNhom> createState() => _HomePageChonNhomState();
+  State<HomePageCategories> createState() => _HomePageCategoriesState();
 }
 
-class _HomePageChonNhomState extends State<HomePageChonNhom>
+class _HomePageCategoriesState extends State<HomePageCategories>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -113,8 +113,8 @@ class _HomePageChonNhomState extends State<HomePageChonNhom>
     return ListView.builder(
       itemCount: groups.length,
       itemBuilder: (context, index) {
-        final categoryType =
-            _tabController.index == 0 ? "Khoản Chi" : "Khoản Thu";
+        // final categoryType =
+        //     _tabController.index == 0 ? "Khoản Chi" : "Khoản Thu";
         final group = groups[index];
         return ListTile(
           leading: Image.asset(
@@ -123,12 +123,12 @@ class _HomePageChonNhomState extends State<HomePageChonNhom>
           ),
           title: Text(group['name']),
           onTap: () {
-            // Trả về icon, tên nhóm và loại khoản (Chi hoặc Thu)
-            Navigator.pop(context, {
-              'name': group['name'], // Tên nhóm
-              'icon': group['icon'], // Icon nhóm
-              'type': categoryType, // Loại khoản (Chi hoặc Thu)
-            });
+            // // Trả về icon, tên nhóm và loại khoản (Chi hoặc Thu)
+            // Navigator.pop(context, {
+            //   'name': group['name'], // Tên nhóm
+            //   'icon': group['icon'], // Icon nhóm
+            //   'type': categoryType, // Loại khoản (Chi hoặc Thu)
+            // });
           },
         );
       },
