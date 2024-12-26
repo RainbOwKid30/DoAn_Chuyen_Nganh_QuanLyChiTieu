@@ -425,6 +425,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
+              // total income
               Column(
                 children: [
                   const Text("Total Income",
@@ -438,6 +439,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
                   ),
                 ],
               ),
+              // total expense
               Column(
                 children: [
                   const Text("Total Expense",
@@ -451,6 +453,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
                   ),
                 ],
               ),
+              //balance
               Column(
                 children: [
                   const Text("Balance",
@@ -607,7 +610,7 @@ class _HomePageTransactionState extends State<HomePageTransaction>
                     );
                   },
                 ),
-        )
+        ),
       ],
     );
   }

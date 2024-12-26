@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_buildOptionRow.dart';
 import 'package:quan_ly_chi_tieu/features/controllers/widgets/custom_screen/custom_build_user_name.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_main/home_page_item.dart';
+import 'package:quan_ly_chi_tieu/features/screens/Pages/home_main/home_page_bill.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_page_custom/home_page_categories.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_page_custom/home_page_edit.dart';
 import 'package:quan_ly_chi_tieu/features/screens/Pages/home_welcome/home_page_welcome.dart';
@@ -137,7 +138,7 @@ class HomePageAccount extends StatelessWidget {
                 context1: context,
                 icon: const Icon(FontAwesomeIcons.fileInvoice),
                 text: "Bill",
-                page: const HomePageItem(),
+                page: const HomePageBill(),
               ),
               CustomBuildoptionrow(
                 context1: context,
