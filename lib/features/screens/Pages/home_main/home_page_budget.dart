@@ -386,7 +386,7 @@ class _HomePageBudgetState extends State<HomePageBudget>
                                             "Amount: ${CustomMoney().formatCurrencyTotalNoSymbol(budgetItem['amount'])}",
                                             style: const TextStyle(
                                               color: Colors.green,
-                                              fontSize: 15,
+                                              fontSize: 13,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
@@ -409,7 +409,7 @@ class _HomePageBudgetState extends State<HomePageBudget>
                                                 budgetItem['remainingAmount']),
                                         style: const TextStyle(
                                           color: Colors.blue,
-                                          fontSize: 18,
+                                          fontSize: 15,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),

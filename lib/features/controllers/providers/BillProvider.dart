@@ -1,13 +1,36 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Billprovider with ChangeNotifier {
   double totalTransaction = 0;
   double spent = 0;
   double sotienconlai = 0;
-  List<Map<String, dynamic>> budgetItems = [];
+  List<Map<String, dynamic>> billItem = [];
   List<Map<String, dynamic>> billData = [];
+  // Hàm tính lại tổng số tiền chưa thanh toán
+  void calculateRemainingAmount() {
+    sotienconlai = 0.0;
+    for (var bill in billItem) {
+      if (!bill['status']) {
+        // Nếu hóa đơn chưa thanh toán
+        sotienconlai += bill['amount'];
+      }
+    }
+    notifyListeners(); // Thông báo UI cập nhật
+  }
+
+  Future<void> updateBillStatus(String billId) async {
+    try {
+      // Lấy reference đến document hóa đơn theo billId
+      await FirebaseFirestore.instance.collection('bills').doc(billId).update({
+        'status': true, // Cập nhật trạng thái thành true (đã thanh toán)
+      });
+    } catch (e) {
+      print("Error updating bill status: $e");
+    }
+  }
 
   // Fetch Bill Data
   Future<void> fetchBillData() async {
@@ -18,6 +41,7 @@ class Billprovider with ChangeNotifier {
       QuerySnapshot billSnapshot = await FirebaseFirestore.instance
           .collection('bills')
           .where('userId', isEqualTo: userId)
+          .where('status', isEqualTo: false)
           .get();
 
       double totalAmount = 0;
@@ -31,11 +55,25 @@ class Billprovider with ChangeNotifier {
         totalAmount += data['amount'];
         categoryIds.add(data['categoryId']);
 
+        // Chuyển đổi dueDate sang DateTime
+        DateTime dueDate = (data['dueDate'] as Timestamp).toDate();
+
+        // Định dạng ngày tháng cho "Next bill is"
+        String formattedDueDate =
+            DateFormat('EEEE, dd MMMM yyyy').format(dueDate);
+
+        // Tính số ngày đến hạn
+        int daysUntilDue = dueDate.difference(DateTime.now()).inDays + 1;
+
         billItems.add({
           'id': doc.id,
           'name': data['name'],
           'amount': data['amount'],
-          'dueDate': data['dueDate'],
+          // Ngày hóa đơn tiếp theo (dạng chuỗi)
+          'nextBillDate': formattedDueDate,
+          // Số ngày đến hạn
+          'daysUntilDue': daysUntilDue,
+          'dueDate': dueDate,
           'frequency': data['frequency'],
           'status': data['status'],
           'note': data['note'],
@@ -62,7 +100,7 @@ class Billprovider with ChangeNotifier {
 
       // Cập nhật state
       totalTransaction = totalAmount; // Tổng số tiền hóa đơn
-      budgetItems = billItems; // Danh sách hóa đơn
+      billItem = billItems; // Danh sách hóa đơn
       notifyListeners();
     } catch (e) {
       print("Error fetching bill data: $e");
@@ -117,5 +155,4 @@ class Billprovider with ChangeNotifier {
       debugPrint('Lỗi khi tải dữ liệu hóa đơn: $e');
     }
   }
-
 }

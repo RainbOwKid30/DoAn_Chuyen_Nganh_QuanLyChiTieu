@@ -216,12 +216,9 @@ class _HomePagePlusState extends State<HomePagePlus> {
       body: Column(
         children: [
           // đường kẻ
-          const Padding(
-            padding: EdgeInsets.only(top: 10.0),
-            child: Divider(
-              thickness: 1,
-              color: Color(0xFFb7b7b7),
-            ),
+          const Divider(
+            thickness: 1,
+            color: Color(0xFFb7b7b7),
           ),
           const SizedBox(height: 20),
           // Input Money

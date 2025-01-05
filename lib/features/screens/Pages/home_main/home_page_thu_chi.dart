@@ -107,7 +107,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                               style: const TextStyle(
                                 color: Colors.black,
                                 fontSize: 32,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
@@ -258,7 +258,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                         style: const TextStyle(
                                           color: Colors.black,
                                           fontSize: 18,
-                                          fontWeight: FontWeight.w500,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                     ],
@@ -274,7 +274,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                 ),
               ],
             ),
-            
+
             const Padding(
               padding: EdgeInsets.only(top: 25.0),
             ),
@@ -373,7 +373,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                               style: const TextStyle(
                                                 fontSize: 18,
                                                 color: Color(0xFFFE4646),
-                                                fontWeight: FontWeight.w500,
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                             Container(
@@ -413,7 +413,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                               style: const TextStyle(
                                                 fontSize: 18,
                                                 color: Color(0xFF288BEE),
-                                                fontWeight: FontWeight.w500,
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                             Container(
@@ -496,7 +496,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                           child: Column(
                                             children: [
                                               Container(
-                                                width: 170,
+                                                width: 165,
                                                 height: 30,
                                                 padding: const EdgeInsets.only(
                                                     left: 1.0),
@@ -535,7 +535,7 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                           child: Column(
                                             children: [
                                               Container(
-                                                width: 170,
+                                                width: 165,
                                                 height: 30,
                                                 padding: const EdgeInsets.only(
                                                     left: 1.0),
@@ -585,8 +585,8 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                                   CustomMoney().formatCurrency(
                                                       totalExpenseThisWeek),
                                                   style: const TextStyle(
-                                                    fontSize: 25,
-                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 20,
+                                                    fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
                                               ],
@@ -620,8 +620,8 @@ class _HomePageThuChiState extends State<HomePageThuChi> {
                                                   CustomMoney().formatCurrency(
                                                       totalExpenseThisMonth),
                                                   style: const TextStyle(
-                                                    fontSize: 25,
-                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 20,
+                                                    fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
                                               ],

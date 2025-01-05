@@ -79,6 +79,29 @@ class _HomePageCreateItemBillState extends State<HomePageCreateItemBill> {
     );
   }
 
+  // Hàm để mở HomePageChonNhom và lấy dữ liệu khi chọn item
+  void _openChonNhom() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const HomePageSelectBudget()),
+    );
+
+    if (result != null) {
+      setState(() {
+        // Cập nhật tên nhóm và icon
+        selectedGroupName = result['name'];
+        selectedGroupIcon = result['icon'];
+
+        // Cập nhật loại khoản (thu/chi)
+        transactionType = result['type']; // Giả sử 'type' là thu hoặc chi
+
+        // Cập nhật màu sắc dựa trên loại khoản
+        transactionColor =
+            (transactionType == 'Khoản Chi') ? Colors.red : Colors.blue;
+      });
+    }
+  }
+
   // Date selection
   DateTime? selectedDate;
   DateTime? lastDate;
@@ -383,28 +406,5 @@ class _HomePageCreateItemBillState extends State<HomePageCreateItemBill> {
         ],
       ),
     );
-  }
-
-  // Hàm để mở HomePageChonNhom và lấy dữ liệu khi chọn item
-  void _openChonNhom() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const HomePageSelectBudget()),
-    );
-
-    if (result != null) {
-      setState(() {
-        // Cập nhật tên nhóm và icon
-        selectedGroupName = result['name'];
-        selectedGroupIcon = result['icon'];
-
-        // Cập nhật loại khoản (thu/chi)
-        transactionType = result['type']; // Giả sử 'type' là thu hoặc chi
-
-        // Cập nhật màu sắc dựa trên loại khoản
-        transactionColor =
-            (transactionType == 'Khoản Chi') ? Colors.red : Colors.blue;
-      });
-    }
   }
 }

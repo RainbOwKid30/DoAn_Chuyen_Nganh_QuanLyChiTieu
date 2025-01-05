@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 class TransactionProvider with ChangeNotifier {
   List<Map<String, dynamic>> expenseData = [];
   List<Map<String, dynamic>> incomeData = [];
+  List<Map<String, dynamic>> billData = [];
+  double newBalance = 0.0;
 
   // Hàm tải dữ liệu theo tháng
   Future<void> loadDataByMonth(String userId, int month, int year) async {
@@ -164,11 +166,38 @@ class TransactionProvider with ChangeNotifier {
         }).toList();
         notifyListeners();
       });
+      // Tải dữ liệu hóa đơn (Bills)
+      FirebaseFirestore.instance
+          .collection('bills')
+          .where('userId', isEqualTo: userId)
+          .where('status', isEqualTo: true)
+          .snapshots()
+          .listen((snapshot) {
+        // Lọc và chỉ lấy các hóa đơn có status = true
+        billData = snapshot.docs.map((doc) {
+          var data = doc.data();
+          return {
+            'billId': doc.id,
+            'amount': data['amount'] ?? 0,
+            'categoryId': data['categoryId'] ?? '',
+            'name': data['name'] ?? '',
+            'dueDate':
+                (data['dueDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+            'frequency': data['frequency'] ?? '',
+            'status': data['status'] ?? false,
+            'note': data['note'] ?? '',
+          };
+        }).toList();
+        notifyListeners();
+      });
     } catch (e) {
       debugPrint('Lỗi khi tải dữ liệu: $e');
     }
   }
 
+  // Tính tổng số tiền hóa đơn có status = true
+  double get totalBillAmount =>
+      billData.fold(0, (sum, bill) => sum + (bill['amount']));
   // Tính tổng chi
   double get totalExpenses =>
       expenseData.fold(0, (sum, item) => sum + (item['amount']));
@@ -178,5 +207,5 @@ class TransactionProvider with ChangeNotifier {
       incomeData.fold(0, (sum, item) => sum + (item['amount']));
 
   // Tính tổng số dư
-  double get totalBalance => totalIncome - totalExpenses;
+  double get totalBalance => totalIncome - totalExpenses - totalBillAmount;
 }

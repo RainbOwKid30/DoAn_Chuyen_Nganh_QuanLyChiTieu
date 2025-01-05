@@ -32,7 +32,7 @@ class CustomWelcomeButton extends StatelessWidget {
           buttonText!,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 20.0,
+            fontSize: 18.0,
             fontWeight: FontWeight.bold,
             color: textColor!,
           ),

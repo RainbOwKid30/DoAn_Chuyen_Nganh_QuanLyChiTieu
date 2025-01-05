@@ -62,6 +62,9 @@ class HomePageWelcome extends StatelessWidget {
                       textColor: lightColorScheme.primary,
                     ),
                   ),
+                  const SizedBox(
+                    height: 10,
+                  ),
                 ],
               ),
             ),
